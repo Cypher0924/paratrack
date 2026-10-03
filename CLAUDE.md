@@ -57,7 +57,7 @@ Run from the repo root:
 - `npx turbo run dev --filter=web` (or `native`, `@repo/ui`): one workspace
 - `npm run android -w native` / `npm run ios -w native`: native builds via Expo
 
-There are no tests. `web`'s `lint` script calls `next lint`, which Next 16 removed, so it fails. `apps/web/.eslintrc.json` is also the legacy format that ESLint 9 ignores.
+There are no tests. Lint exists only in `web` (`npx turbo run lint --filter=web`), using the ESLint CLI with flat config `apps/web/eslint.config.mjs`. Next 16 removed `next lint`.
 
 ### Architecture
 
