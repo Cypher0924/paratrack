@@ -62,7 +62,7 @@ There are no tests. Lint exists only in `web` (`npx turbo run lint --filter=web`
 ### Architecture
 
 - `packages/ui` (`@repo/ui`): shared components written against `react-native` primitives. Built with tsup to `dist/` (CJS + ESM + types, `'use client'` banner). Consumers import `dist/`, not `src/`, so it must be built (or running `tsup --watch`) before `web` sees changes.
-- `apps/web`: Next.js 16 App Router. `next.config.js` aliases `react-native` to `react-native-web` and prefers `.web.*` extensions, for both Turbopack and webpack. Keep both blocks in sync. Pages that render `@repo/ui` need `"use client"`.
+- `apps/web`: Next.js 16 App Router. `next.config.js` aliases `react-native` to `react-native-web` and prefers `.web.*` extensions, for both Turbopack and webpack. Keep both blocks in sync. Pages that render `@repo/ui` need `"use client"`. Web-only Arc UI components (uiarc.dev, shadcn registry) are copied into `components/arc/` via `apps/web/components.json`. Add more with `npx shadcn@latest add @uiarc/<name>` from `apps/web`. Tokens load from `components/arc/foundation.css` in `app/layout.tsx`. `@/*` maps to the `apps/web` root.
 - `apps/native`: Expo SDK 55 with expo-router (routes in `app/`, entry `index.js`). Metro uses Expo's default config, which auto-detects the monorepo. `react-native` version must match what the Expo SDK expects.
 - `packages/typescript-config`: shared tsconfigs (`base`, `nextjs`, `react-native-library`). `native` extends `expo/tsconfig.base` instead.
 - React is pinned to 19.2.0 across all workspaces. Keep versions identical to avoid duplicate React copies.

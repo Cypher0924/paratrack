@@ -1,3 +1,5 @@
+import "@/components/arc/foundation.css";
+
 export default function RootLayout({
   children,
 }: {
