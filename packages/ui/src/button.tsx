@@ -1,37 +1,42 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  GestureResponderEvent,
-  Text,
-  Pressable,
-} from "react-native";
+import { Pressable } from "react-native";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "./lib";
+import { TextClassContext } from "./text";
 
-export interface ButtonProps {
-  text: string;
-  onClick?: (event: GestureResponderEvent) => void;
-}
+// Adapted from React Native Reusables `button` (copied by hand, CLI is interactive and app-oriented).
+const buttonVariants = cva(
+  "flex-row items-center justify-center gap-2 rounded-md",
+  {
+    variants: {
+      variant: {
+        default: "bg-accent active:opacity-90",
+        outline: "border border-accent bg-white active:opacity-90",
+      },
+      size: { default: "h-10 px-4 py-2", lg: "h-11 px-8" },
+    },
+    defaultVariants: { variant: "default", size: "default" },
+  },
+);
 
-export function Button({ text, onClick }: ButtonProps) {
+const buttonTextVariants = cva("text-sm font-medium", {
+  variants: {
+    variant: { default: "text-white", outline: "text-accent" },
+  },
+  defaultVariants: { variant: "default" },
+});
+
+export type ButtonProps = React.ComponentProps<typeof Pressable> &
+  VariantProps<typeof buttonVariants>;
+
+export function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
-    <Pressable style={styles.button} onPress={onClick}>
-      <Text style={styles.text}>{text}</Text>
-    </Pressable>
+    <TextClassContext.Provider value={buttonTextVariants({ variant })}>
+      <Pressable
+        role="button"
+        className={cn(buttonVariants({ variant, size }), className)}
+        {...props}
+      />
+    </TextClassContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    maxWidth: 200,
-    textAlign: "center",
-    borderRadius: 10,
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingLeft: 30,
-    paddingRight: 30,
-    fontSize: 15,
-    backgroundColor: "#2f80ed",
-  },
-  text: {
-    color: "white",
-  },
-});
