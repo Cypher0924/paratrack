@@ -43,7 +43,9 @@ Open the push preview link on the Android phone:
 ## Device findings
 - Push arrived with the app closed. Copy and icon were correct.
 - It was attributed to Chrome (Chrome label, UNSUBSCRIBE action) instead of the installed ParaTrack WebAPK. Cause: manifest had no scope, so scope defaulted to /spike/ while the service worker scope is /.
-- Fix: manifest scope set to / (start_url unchanged). Retest pending.
+- Fix: manifest scope set to / (start_url unchanged).
+- After the scope fix, notifications show under ParaTrack with the app icon and no Unsubscribe action.
+- The status-bar icon was a generic bell until a monochrome `badge` image was added (`/badge-96.png`, from `assets/brand/notification-icon.svg`). Retest of the status-bar icon pending.
 
 ## Answer
 Pending device results.
