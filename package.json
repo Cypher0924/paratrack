@@ -3,13 +3,16 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "test": "vitest run",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
   },
   "devDependencies": {
     "@types/minimatch": "^6.0.0",
     "prettier": "^3.1.1",
-    "turbo": "^2.11.7"
+    "supabase": "^2.119.0",
+    "turbo": "^2.11.7",
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=18"
@@ -24,5 +27,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "overrides": {
+    "esbuild": "^0.28.2",
+    "uuid": "^11.1.1"
+  }
 }

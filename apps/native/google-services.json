@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "12253768267",
+    "project_id": "paratrack-bd6ec",
+    "storage_bucket": "paratrack-bd6ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12253768267:android:4f41d9bd937484b2fb3bce",
+        "android_client_info": {
+          "package_name": "com.paratrack.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnLbqVuG2_u7yTLr6V1T3z3Qiws9fl1mc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
