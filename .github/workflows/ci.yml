@@ -15,6 +15,7 @@ jobs:
     env:
       CI: true
       SUPABASE_AUTH_TEST_OTP: "123456"
+      SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN: dummy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
