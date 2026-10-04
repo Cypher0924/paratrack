@@ -5,6 +5,7 @@ self.addEventListener("push", (event) => {
       self.registration.showNotification(p.title || "ParaTrack", {
         body: p.body,
         icon: "/icon-192.png",
+        badge: "/badge-96.png",
       }),
       self.navigator.setAppBadge && p.badge
         ? self.navigator.setAppBadge(p.badge)
