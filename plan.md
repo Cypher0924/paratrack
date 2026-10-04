@@ -2,7 +2,7 @@
 
 ## Context
 
-ParaTrack is a live map of PUVs (traditional and modern jeepneys, buses, campus shuttles) in Tarlac City. Commuters, mainly students and employees, see where each vehicle is, its ETA, its seats left, and the LTFRB fare before boarding. Drivers share their location and passenger count from their phone. Source: client concept paper plus 25 finished Figma screens (file `46EIhMGyMDUB4712Nqp1au`, pages "Screens (redesign)" and "Components (redesign)"). The repo is still the Turborepo starter: an empty Next.js app, an empty Expo app and a stub `@repo/ui`.
+ParaTrack is a live map of PUVs (traditional and modern jeepneys, buses, campus shuttles) in Tarlac City. Commuters, mainly students and employees, see where each vehicle is, its ETA, its seats left, and the LTFRB fare before boarding. Drivers share their location and passenger count from their phone. Source: client concept paper plus 25 Figma app screens and 3 notification showcase screens (file `46EIhMGyMDUB4712Nqp1au`, pages "Screens (redesign)" and "Components (redesign)"). The repo is still the Turborepo starter: an empty Next.js app, an empty Expo app and a stub `@repo/ui`.
 
 Goal: a live prototype on three surfaces. iOS uses the web app installed to the Home Screen (PWA). The same web app also works as a normal website. Android gets an APK built from the Expo app.
 
@@ -14,7 +14,8 @@ Screen work waits for the Figma flow the user is finishing. Phases 0 to 4 do not
 |---|---|
 | Web + iOS | Next.js `apps/web` as a PWA |
 | Android | Expo `apps/native` built to an APK with EAS Build (cloud, free tier) |
-| Shared UI | Screens written once in `@repo/ui` with React Native primitives. Web renders them through react-native-web |
+| Shared UI | Screens written once in `@repo/ui` with React Native primitives. Web renders them through react-native-web. Components come from React Native Reusables (shadcn for React Native). Animation uses Reanimated 4 |
+| Web-only pages | Arc, shadcn and Motion, for pages that exist only on the web: public landing page, Terms, Privacy. They render HTML, so the shared app screens can't use them |
 | Backend | Supabase: Postgres + PostGIS, phone OTP auth, anonymous sign-in, Realtime, RLS |
 | Server code | Next.js API routes (Node on Vercel) for anything that sends push |
 | SMS codes | Supabase test numbers with fixed codes. Semaphore may replace this later (saved to memory) |
@@ -36,13 +37,16 @@ Why CI-only: Vitest and Playwright need a running Postgres, Auth and Realtime to
 | Android | Expo SDK 55, expo-router, dev build (no Expo Go, native modules needed) |
 | Map | MapLibre on both: `maplibre-gl` (web), `@maplibre/maplibre-react-native` (Android). OpenFreeMap tiles (free, no key). One style JSON recolored with the Figma map tokens |
 | Icons / font | `phosphor-react-native` (Figma uses Phosphor names), Inter |
+| Components | React Native Reusables copied into `@repo/ui` with its CLI, styled with NativeWind (Tailwind for React Native) using the Figma tokens |
+| Animation | Reanimated 4 (ships with Expo SDK 55). Its CSS-style transitions and entering/exiting animations work on Android and web. Moti only if Reanimated's API falls short |
+| Brand | `assets/brand/app-icon.svg` and `assets/brand/logo.svg`, exported from Figma (`Brand/App icon`, `Brand/Logo`). Source for the favicon, PWA icons and the Android icon and splash |
 | Location | Web: `navigator.geolocation` + Wake Lock. Android: `expo-location` + `expo-task-manager` background task |
 | Push | Web: Web Push (VAPID, `web-push`). Android: `expo-notifications` + Expo Push (needs a free Firebase project for FCM) |
 | Validation | `zod` at every API boundary |
 | Hosting | Vercel Hobby (web + API), Supabase free project, EAS Build free tier |
 | CI | GitHub Actions: typecheck, lint, Vitest, Playwright |
 
-Arc UI stays installed but the shared screens cannot use it (DOM-only components).
+Inside the shared screens, React Native Reusables stands in for shadcn and Reanimated for Motion, because the screens also run on Android.
 
 ## Repo layout
 
@@ -137,9 +141,21 @@ Notifications
 | Driver goes offline | trackers | push + inbox + banner (23). Stale vehicles show the banner only |
 | Announcement added in the dashboard | users with service updates on | push + inbox (Service) |
 
+How notifications look follows the Figma Showcase screens (26 lock screen, 27 home-screen badge, 28 home-screen banner):
+- **Copy.** Arrival title: "{vehicle} is {N} min away". Body: "Head to {stop}. It arrives at {time} with {seats} seats left." The other kinds follow the same pattern (what happened, then what to do). One copy builder in `packages/core` produces every title and body, so push and the in-app inbox match.
+- **Icon.** Each notification shows the app icon. Android also needs a white monochrome small icon made from the brand mark.
+- **Badge.** The app icon shows the unread alert count. It updates on every push and when alerts are read. The installed web app uses the Badging API (`navigator.setAppBadge` from the service worker). Android uses `expo-notifications` badge counts, which depend on the launcher.
+
 Each alert fires once per trip (`*_sent_at` set with a conditional update). iOS push only works once the app is installed to the Home Screen (iOS 16.4+) and permission is asked from a tap. So Safari users see an "Add to Home Screen" hint when they turn on an alert. Trips end automatically after the vehicle passes the alight stop.
 
 States: loading (21), no vehicles (20), offline (22, from network status + Realtime channel status), stopped sharing (23), phone error (24), wrong code (25). The service worker caches the app shell so the installed app opens offline.
+
+Motion: the app should feel live, not static. Animations show cause and effect:
+- Vehicle markers glide between GPS pings instead of jumping.
+- Seat counts and ETAs tick to their new value. The capacity bar fills smoothly.
+- Sheets slide between heights. List rows animate in and out as vehicles come and go.
+- Alerts and banners slide in. Buttons and the driver's +/- buttons respond to presses.
+- Every animation has a reduced-motion branch that respects the system setting.
 
 Realtime uses `postgres_changes`. `ponytail: fine at prototype scale, switch to Broadcast if subscribers pass ~100`
 
@@ -151,7 +167,7 @@ Realtime uses `postgres_changes`. `ponytail: fine at prototype scale, switch to 
 
 ## Testing
 
-- Unit (Vitest, `packages/core`): fare (Figma example + every fare type + rounding), ETA (loop wrap, stopped vehicle, at stop), alert rules (arrival threshold, Para "passed previous stop", full transition, fire once), seat status colors, search ordering, PH phone parsing (`09…` / `+639…`), "updated N sec ago".
+- Unit (Vitest, `packages/core`): fare (Figma example + every fare type + rounding), ETA (loop wrap, stopped vehicle, at stop), alert rules (arrival threshold, Para "passed previous stop", full transition, fire once), seat status colors, search ordering, PH phone parsing (`09…` / `+639…`), "updated N sec ago", notification copy (the Figma arrival example renders exactly as designed).
 - Integration (Vitest): full run in CI against the throwaway Supabase. Local runs hit `paratrack-dev`, so each test creates and deletes its own users and rows. Covers the RLS matrix for anon, commuter, driver and another driver on every table. RPC rules: verify rate limit, anonymous user blocked, shift conflict, ping projection, seat clamp. API route handlers called with real `Request` objects, push sender stubbed at the network edge.
 - E2E (Playwright on the Next.js web app, runs in CI against the seeded throwaway Supabase, iPhone 13 + Pixel 7 emulation, mocked geolocation):
   1. Guest onboarding to Home with vehicles.
@@ -160,7 +176,7 @@ Realtime uses `postgres_changes`. `ponytail: fine at prototype scale, switch to 
   4. Driver: verify (bad code, then good), start shift, +/-, mark full, undo, go offline confirm.
   5. Two browser contexts: the driver marks full and the commuter sees Full plus an inbox alert within 5 s.
   6. Offline (`context.setOffline`), no vehicles, and stopped-sharing states.
-- Regression: CI runs typecheck, lint, Vitest and Playwright on every push and PR. Playwright screenshots (`toHaveScreenshot`) cover all 25 Figma states with a frozen clock and the map canvas masked. Baselines are made on Linux in CI (font rendering differs on Windows). Every bug fix starts with a failing test that reproduces it.
+- Regression: CI runs typecheck, lint, Vitest and Playwright on every push and PR. Playwright screenshots (`toHaveScreenshot`) cover all 25 Figma states with a frozen clock, reduced motion turned on, and the map canvas masked. Baselines are made on Linux in CI (font rendering differs on Windows). Every bug fix starts with a failing test that reproduces it.
 - Android: shared screens are covered by the web e2e. Native-only code (map, background location, Expo push) gets a manual checklist on each APK. Skipped: Maestro/Detox, add if Android-only bugs repeat.
 
 ## Phases
@@ -168,16 +184,16 @@ Realtime uses `postgres_changes`. `ponytail: fine at prototype scale, switch to 
 | # | Phase | Needs final Figma flow |
 |---|---|---|
 | 0 | Setup: create `paratrack-dev` and point `.env.local`, `supabase link` and `.mcp.json` at it, `supabase init`, EAS init + app name/package + `google-services.json`, phone auth with test numbers, CI skeleton (Actions with `supabase start`), Vitest + Playwright config. Already done: memories, `plan.md`, accounts, Firebase Android app | no |
-| 1 | Spikes, throwaway code: (a) MapLibre RN on Expo 55 in an EAS dev build. Fallback `react-native-maps` + Google key. (b) `@repo/ui` from source in Next 16 Turbopack with react-native-svg icons. (c) Web Push reaching an installed PWA from Vercel. (d) Android background location posting with the screen off | no |
+| 1 | Spikes, throwaway code: (a) MapLibre RN on Expo 55 in an EAS dev build. Fallback `react-native-maps` + Google key. (b) `@repo/ui` from source in Next 16 Turbopack with react-native-svg icons, NativeWind, one React Native Reusables component and one Reanimated animation, all rendering on web and Android. Fallback: serve the app's web build from Expo Router and keep Next.js for the API routes and web-only pages. (c) Web Push reaching an installed PWA from Vercel. (d) Android background location posting with the screen off | no |
 | 2 | `packages/core` with TDD | no |
 | 3 | Migrations, RLS, RPCs, cron, Tarlac seed, integration tests | no |
-| 4 | Tokens from Figma variables (colors, radii, spacing, Inter text styles, elevation), components from the Components page | no |
+| 4 | Tokens from Figma variables (colors, radii, spacing, Inter text styles, elevation) into the NativeWind theme. React Native Reusables components restyled to match the Components page, plus the shared animation presets | no |
 | 5 | Onboarding + auth (01 to 05, 24, 25) | yes |
 | 6 | Commuter screens (06 to 14, 20 to 23) with Realtime | yes |
 | 7 | Driver screens (15 to 19) + location sharing | yes |
-| 8 | Notifications: push subscribe, dispatch, inbox, announcement webhook | yes |
+| 8 | Notifications: push subscribe, dispatch, copy builder, app icon badge count, inbox, announcement webhook | yes |
 | 9 | Simulator | no |
-| 10 | PWA (manifest, sw.js, iOS install hint), Vercel deploy, migrations to production `paratrack`, EAS preview APK | no |
+| 10 | PWA (manifest, sw.js, iOS install hint), favicon, PWA and Android icons plus splash and the monochrome notification icon from `assets/brand`, web-only pages (landing, Terms, Privacy) with Arc + shadcn + Motion, Vercel deploy, migrations to production `paratrack`, EAS preview APK | no |
 | 11 | Hardening: full e2e + visual pass, real-device checks, fix bugs, impeccable audit of the build against Figma | yes |
 | 12 | Security review | no |
 
@@ -211,7 +227,7 @@ iOS push and install can only be verified on a real iPhone (iOS 16.4+). You don'
 
 - Figma's filter (All / Shuttle / E-jeep / Bus) lacks traditional jeepneys, which the concept paper names. Default: add a "Jeep" tab.
 - Screens Figma implies but doesn't draw: edit profile (name), saved places and routes lists, stop picker, driver route/vehicle change, Terms and Privacy pages. Built from existing components in the same style.
-- Sheets don't drag in v1 (fixed height, handle is visual). `ponytail: add drag when a screen needs more map space`
+- Sheets animate between two heights with Reanimated. Dragging uses `react-native-gesture-handler` if the Phase 1 spike shows it works on web. Otherwise tapping the handle expands the sheet.
 - Operators, vehicles, routes and announcements are managed in the Supabase dashboard. No admin UI.
 - Android package id `com.paratrack.app` and display name "ParaTrack" replace the starter's `com.turbo.example` / "native".
 
