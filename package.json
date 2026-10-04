@@ -9,6 +9,7 @@
   "devDependencies": {
     "@types/minimatch": "^6.0.0",
     "prettier": "^3.1.1",
+    "supabase": "^2.119.0",
     "turbo": "^2.11.7"
   },
   "engines": {
