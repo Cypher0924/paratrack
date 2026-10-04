@@ -62,6 +62,23 @@ const routeId = crypto.randomUUID();
 const vehicleId = crypto.randomUUID();
 const stopIds = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()];
 const offRouteStopId = crypto.randomUUID();
+const OFFLINE = {
+  online: false,
+  lat: null,
+  lng: null,
+  heading: null,
+  accuracy: null,
+  speed_mps: 0,
+  progress_m: 0,
+};
+const liveRow = (sb: ReturnType<typeof client>) =>
+  ok(
+    sb
+      .from("vehicle_live")
+      .select("online, lat, lng, heading, accuracy, speed_mps, progress_m")
+      .eq("vehicle_id", vehicleId)
+      .single(),
+  );
 let routeLength = 0;
 let commuterId = "";
 let driverAId = "";
@@ -158,6 +175,18 @@ beforeAll(async () => {
       capacity: 12,
     }),
   );
+  // Offline, like the seed's rows. The location must not stick.
+  await ok(
+    admin.from("vehicle_live").insert({
+      vehicle_id: vehicleId,
+      lat: LAT0,
+      lng: LNG,
+      heading: 90,
+      accuracy: 5,
+      speed_mps: 4,
+      progress_m: 10,
+    }),
+  );
   await ok(
     admin
       .from("announcements")
@@ -215,6 +244,20 @@ describe("RLS", () => {
       ).toHaveLength(1);
       expect(await fails(sb.from("stops").insert({ name: "Nope" }))).toMatch(
         DENIED,
+      );
+    }
+  });
+
+  it("shows offline vehicles without a location", async () => {
+    for (const sb of [anon, commuter]) {
+      expect(await liveRow(sb)).toEqual(OFFLINE);
+    }
+  });
+
+  it("has no driver column on vehicle_live for anyone to select", async () => {
+    for (const sb of [anon, commuter, admin]) {
+      expect(await fails(sb.from("vehicle_live").select("driver_id"))).toMatch(
+        /does not exist/,
       );
     }
   });
@@ -427,7 +470,7 @@ describe("driver functions", () => {
     expect(await fails(driverB.rpc("driver_set_seats", { p_count: 1 }))).toBe(
       "not_online",
     );
-    expect(await fails(driverB.rpc("end_shift"))).toBe("not_online");
+    expect(await fails(driverB.rpc("end_shift"))).toBe("not_a_driver");
   });
 
   it("record a failed attempt for a wrong code or plate", async () => {
@@ -498,18 +541,10 @@ describe("driver functions", () => {
     const live = await ok(driverA.rpc("start_shift"));
     expect(live).toMatchObject({
       vehicle_id: vehicleId,
-      driver_id: driverAId,
       online: true,
       seats_taken: 0,
     });
-    expect(
-      await ok(
-        anon
-          .from("vehicle_live")
-          .select("vehicle_id")
-          .eq("vehicle_id", vehicleId),
-      ),
-    ).toHaveLength(1);
+    expect(await liveRow(anon)).toMatchObject({ online: true });
     expect(
       await fails(
         commuter
@@ -577,23 +612,19 @@ describe("driver functions", () => {
   it("reject trip stops that are not on the vehicle's route, and count trackers", async () => {
     expect(
       await fails(
-        commuter
-          .from("trips")
-          .insert({
-            vehicle_id: vehicleId,
-            board_stop_id: offRouteStopId,
-            alight_stop_id: stopIds[2],
-          }),
+        commuter.from("trips").insert({
+          vehicle_id: vehicleId,
+          board_stop_id: offRouteStopId,
+          alight_stop_id: stopIds[2],
+        }),
       ),
     ).toBe("stop_not_on_route");
     await ok(
-      commuter
-        .from("trips")
-        .insert({
-          vehicle_id: vehicleId,
-          board_stop_id: stopIds[0],
-          alight_stop_id: stopIds[2],
-        }),
+      commuter.from("trips").insert({
+        vehicle_id: vehicleId,
+        board_stop_id: stopIds[0],
+        alight_stop_id: stopIds[2],
+      }),
     );
     expect(
       await ok(driverB.rpc("tracking_count", { p_vehicle_id: vehicleId })),
@@ -601,26 +632,19 @@ describe("driver functions", () => {
   });
 
   it("refuse a second driver while the vehicle is online", async () => {
-    await ok(
-      driverB.rpc("verify_driver", { p_operator_code: code, p_plate: plate }),
-    );
-    expect(await fails(driverB.rpc("start_shift"))).toBe("vehicle_in_use");
+    expect(
+      await fails(
+        driverB.rpc("verify_driver", { p_operator_code: code, p_plate: plate }),
+      ),
+    ).toBe("vehicle_in_use");
   });
 
-  it("end the shift with the tracker count", async () => {
+  it("end the shift with the tracker count and clear the location", async () => {
     expect(await ok(driverA.rpc("end_shift"))).toEqual({
       vehicle_id: vehicleId,
       trackers: 1,
     });
-    expect(
-      await ok(
-        anon
-          .from("vehicle_live")
-          .select("vehicle_id")
-          .eq("vehicle_id", vehicleId),
-      ),
-    ).toEqual([]);
-    expect(await fails(driverA.rpc("end_shift"))).toBe("not_online");
+    expect(await liveRow(anon)).toEqual(OFFLINE);
   });
 });
 
@@ -631,27 +655,24 @@ describe("stale-vehicles cron job", () => {
     ok(
       admin
         .from("vehicle_live")
-        .update({ online: true, updated_at: updatedAt })
+        .update({ online: true, lat: LAT0, lng: LNG, updated_at: updatedAt })
         .eq("vehicle_id", vehicleId),
     );
-  const isOnline = async () =>
-    (
-      await ok(
-        admin
-          .from("vehicle_live")
-          .select("online")
-          .eq("vehicle_id", vehicleId)
-          .single(),
-      )
-    ).online;
 
-  it("takes vehicles silent for 5 minutes offline", async () => {
+  it("takes vehicles silent for 5 minutes offline and clears the location", async () => {
     await setLive(minutesAgo(4));
     await ok(admin.rpc("run_cron_job", { p_name: "stale-vehicles" }));
-    expect(await isOnline()).toBe(true);
+    expect(await liveRow(admin)).toMatchObject({ online: true, lat: LAT0 });
     await setLive(minutesAgo(6));
     await ok(admin.rpc("run_cron_job", { p_name: "stale-vehicles" }));
-    expect(await isOnline()).toBe(false);
+    expect(await liveRow(anon)).toEqual(OFFLINE);
+  });
+
+  it("lets the driver end a shift the job already ended", async () => {
+    expect(await ok(driverA.rpc("end_shift"))).toEqual({
+      vehicle_id: vehicleId,
+      trackers: 1,
+    });
   });
 
   it("runs only scheduled jobs, for admins only", async () => {
