@@ -1,18 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Button } from "@repo/ui";
+import { Button, Text as UIText } from "@repo/ui";
 
 export default function Native() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Native</Text>
       <Button
-        onClick={() => {
+        onPress={() => {
           console.log("Pressed!");
           alert("Pressed!");
         }}
-        text="Boop"
-      />
+      >
+        <UIText>Boop</UIText>
+      </Button>
       <StatusBar style="auto" />
     </View>
   );
