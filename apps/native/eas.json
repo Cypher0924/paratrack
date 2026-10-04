@@ -1,9 +1,24 @@
 {
-  "cli": { "version": ">= 24.0.0", "appVersionSource": "remote" },
+  "cli": {
+    "version": ">= 24.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "spike": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://tityifunqdrmwpgbcnvw.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EGNmKTmPkAtj0Fw3P_OXwA_UOihFk67"
+      }
     }
   }
 }

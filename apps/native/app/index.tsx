@@ -1,33 +1,22 @@
 import { StyleSheet, Text, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { Button } from "@repo/ui";
+import { Link } from "expo-router";
 
-export default function Native() {
+export default function Home() {
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Native</Text>
-      <Button
-        onClick={() => {
-          console.log("Pressed!");
-          alert("Pressed!");
-        }}
-        text="Boop"
-      />
-      <StatusBar style="auto" />
+      <Text style={styles.header}>ParaTrack spikes</Text>
+      <Link href="/spike-map" style={styles.link}>
+        Map
+      </Link>
+      <Link href="/spike-location" style={styles.link}>
+        Background location
+      </Link>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  header: {
-    fontWeight: "bold",
-    marginBottom: 20,
-    fontSize: 36,
-  },
+  container: { flex: 1, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", gap: 20 },
+  header: { fontWeight: "bold", fontSize: 28 },
+  link: { fontSize: 20, color: "#0a60ff" },
 });
