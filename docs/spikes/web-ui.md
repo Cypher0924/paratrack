@@ -10,7 +10,7 @@
 - Headless Chromium (Playwright) on `/spike`: computed style before click `rgb(21,101,192)` / `80px`, 100 ms after click `rgb(43,133,218)` / `119.7px` (mid-transition), 900 ms after `rgb(66,165,245)` / `160px`. `transition: background-color 0.4s, height 0.4s`. Animation runs on every toggle, not only the first render.
 
 ## Versions
-nativewind 4.2.7, react-native-css-interop 0.2.7, react-native-reanimated 4.2.1, react-native-worklets 0.7.4, react-native-web 0.21.3, phosphor-react-native 3.0.6, react-native-svg 15.15.3, tailwindcss 3.4.19 (NativeWind 4 needs Tailwind 3, not 4), react-native 0.83.10, react 19.2.0 (single copy). Reanimated, worklets and svg versions are the Expo SDK 55 `bundledNativeModules.json` values (npm latest is 4.7.1 and wants RN 0.86+).
+nativewind 4.2.7, react-native-css-interop 0.2.7, react-native-reanimated 4.2.1, react-native-worklets 0.7.4, react-native-web 0.21.3, phosphor-react-native 3.0.6, react-native-svg 15.15.3, tailwindcss 3.4.19 (NativeWind 4 needs Tailwind 3, not 4), react-native 0.83.10, react 19.2.0 (single copy). Reanimated 4.2.1, worklets 0.7.4 and svg 15.15.3 are pinned exactly (no caret) in `apps/web/package.json` to match Expo SDK 55 (same as S2 `expo install`; `react-native-gesture-handler` ~2.30.0 is not used by this spike and was not added). They are the `bundledNativeModules.json` values (npm latest is 4.7.1 and wants RN 0.86+).
 
 ## Config changes and why
 - `packages/ui/package.json`: `main`/`types` -> `src/index.tsx`, removed tsup build/dev scripts and `tsup.config.ts` (no dist). New deps: class-variance-authority, clsx, tailwind-merge, @rn-primitives/slot.
