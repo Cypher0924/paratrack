@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+<defs>
+<mask id="hole" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+<rect width="64" height="64" fill="#FFFFFF"/>
+<circle cx="34" cy="38" r="4.5" fill="#000000"/>
+</mask>
+</defs>
 <g transform="translate(32 32) scale(1.5) translate(-33.25 -32)">
-<path d="M22 47V17H34C36.7848 17 39.4555 18.1062 41.4246 20.0754C43.3938 22.0445 44.5 24.7152 44.5 27.5C44.5 30.2848 43.3938 32.9555 41.4246 34.9246C39.4555 36.8938 36.7848 38 34 38" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M34 44C37.3137 44 40 41.3137 40 38C40 34.6863 37.3137 32 34 32C30.6863 32 28 34.6863 28 38C28 41.3137 30.6863 44 34 44Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="3"/>
+<path mask="url(#hole)" d="M22 47V17H34C36.7848 17 39.4555 18.1062 41.4246 20.0754C43.3938 22.0445 44.5 24.7152 44.5 27.5C44.5 30.2848 43.3938 32.9555 41.4246 34.9246C39.4555 36.8938 36.7848 38 34 38" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="34" cy="38" r="6" stroke="#FFFFFF" stroke-width="3"/>
 </g>
 </svg>
