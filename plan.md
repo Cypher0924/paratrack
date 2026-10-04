@@ -197,6 +197,30 @@ Realtime uses `postgres_changes`. `ponytail: fine at prototype scale, switch to 
 | 11 | Hardening: full e2e + visual pass, real-device checks, fix bugs, impeccable audit of the build against Figma | yes |
 | 12 | Security review | no |
 
+## Phase 1 results
+
+Details in `docs/spikes/web-ui.md`, `native.md` and `push.md`. The spike code stays on branches `spike-web-ui`, `spike-native` and `spike-push` and is never merged.
+
+| Question | Answer |
+|---|---|
+| Shared UI on web (NativeWind, Reusables-style button, Phosphor icon, Reanimated 4 transition) in Next.js 16 | Yes. No Babel needed |
+| Same shared UI on Android | Yes (Infinix X669, Android 12) |
+| MapLibre on Expo SDK 55 with OpenFreeMap tiles | Yes |
+| Web push on Android to the installed web app, app closed | Yes, with the ParaTrack name, app icon, status-bar icon and badge |
+| Android background location every ~5 s with the screen off | Pending. The crash cause is found and fixed (below). Needs an uninstall, restart and reinstall retest |
+| Web push on iPhone | Pending a borrowed iPhone. The test page must be public first, because iPhone home-screen apps don't share Safari's Vercel login cookie |
+
+Carried into later phases:
+- **Versions:** Reanimated 4.2.1, Worklets 0.7.4, react-native-svg 15.15.3, gesture-handler ~2.30.0 (Expo SDK 55 pins, not npm latest), NativeWind 4.2.7 with Tailwind 3.4 (NativeWind 4 doesn't support Tailwind 4), MapLibre RN 11.4.1. `apps/web` also lists `react-native` 0.83.10, or npm pulls a second React through Reanimated's peer dependency.
+- **`@repo/ui`:** consumed from source (no tsup build). `CLAUDE.md` gets updated when this lands in Phase 4.
+- **Web setup (Phase 4):** `transpilePackages` for the React Native packages, a `__DEV__` define, `react-native-safe-area-context` stubbed in both bundlers (real screens use CSS `env(safe-area-inset-*)` instead), `jsxImportSource: "nativewind"`, and `cssInterop(Animated.createAnimatedComponent(View), { className: "style" })` for animated components.
+- **Native setup (Phase 4):** NativeWind's Babel preset, `withNativeWind` in Metro, and `global.css` loaded in the root layout.
+- **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen.
+- **Push (Phase 8):** the manifest `scope` must contain the service worker scope (`"/"`), or Chrome shows notifications as website notifications with an Unsubscribe button. Notifications need a white-on-transparent `badge` image (`assets/brand/notification-icon.svg`). The send endpoint must require login. One VAPID key pair serves every Vercel environment.
+- **Map provider:** choose before Phase 6, either MapLibre (free, only an ⓘ credit) or Mapbox (calmer data at city zoom, logo required, token). Both take the Figma map colors.
+- **Tooling:** use `npx eas-cli@latest` (plain `npx eas-cli` picks a cached 22.6, which is too old). `adb` is installed. Android 12 Wireless debugging works for logs without a USB cable.
+- **Phase 12:** the APK also requests storage and draw-over-apps permissions it doesn't use. Block them with `android.blockedPermissions`.
+
 ## Workflow rules
 
 - Before each phase, `superpowers:writing-plans` turns it into task-level steps. `test-driven-development` for core, SQL and API work.
