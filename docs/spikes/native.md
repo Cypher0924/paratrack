@@ -54,3 +54,13 @@ react-native 0.83.10, expo 55.0.31, @maplibre/maplibre-react-native 11.4.1, expo
 ## What Phase 2+ should copy
 
 - The plugin config above and the module-scope `defineTask` pattern, once the device check passes.
+
+## S4: join with the shared UI spike
+
+- Merged `origin/spike-web-ui`. Conflicts: `apps/native/app/index.tsx` (kept spike links, S1 Button API, added `/spike-ui`) and `package-lock.json` (took theirs, `npm install` re-added the rest). One react 19.2.0, reanimated 4.2.1, worklets 0.7.4.
+- NativeWind native setup in `apps/native`: `nativewind@^4.2.7` and `tailwindcss@^3.4.19` via `expo install`, `tailwind.config.js` (same colors as web, content covers `app/**` and `packages/ui/src/**`), `global.css` imported in `app/_layout.tsx`, `babel.config.js` (`babel-preset-expo` with `jsxImportSource: "nativewind"` plus `nativewind/babel`, no separate worklets plugin), `metro.config.js` wrapped in `withNativeWind`, `nativewind-env.d.ts`.
+- Checks: `expo-doctor` 20/20, `tsc` clean, `expo export -p android` bundles, root `npm run build` passes, CI green (run 37192880126).
+- Gotcha: `npx eas-cli` resolved eas-cli 22.6.0, which fails the `>= 24.0.0` constraint in `eas.json`. Use `npx eas-cli@24.10.0`.
+- EAS generated the Android keystore non-interactively on first build.
+- Build: https://expo.dev/accounts/cyph0924s-team/projects/paratrack/builds/722f14f6-d1dc-42c0-a498-0ef959a02602 (FINISHED, about 40 min including queue)
+- APK: https://expo.dev/artifacts/eas/txVc3B-qADti-ikJJ2aVzAxnBoeHSjtuO8YzHVEcztw.apk
