@@ -22,10 +22,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Typecheck native
-        run: npx tsc --noEmit -p apps/native
       - name: Lint and build
         run: npx turbo run lint build
+      - name: Typecheck native
+        run: npx tsc --noEmit -p apps/native
       - name: Start Supabase
         run: npx supabase start -x studio,imgproxy,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
       - name: Write local env
