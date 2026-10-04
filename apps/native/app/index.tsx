@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Link } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Button, Text as UIText } from "@repo/ui";
 
 export default function Home() {
   return (
@@ -11,6 +13,18 @@ export default function Home() {
       <Link href="/spike-location" style={styles.link}>
         Background location
       </Link>
+      <Link href="/spike-ui" style={styles.link}>
+        Shared UI
+      </Link>
+      <Button
+        onPress={() => {
+          console.log("Pressed!");
+          alert("Pressed!");
+        }}
+      >
+        <UIText>Boop</UIText>
+      </Button>
+      <StatusBar style="auto" />
     </View>
   );
 }
