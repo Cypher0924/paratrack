@@ -7,3 +7,4 @@ export * from "./phone";
 export * from "./time";
 export * from "./copy";
 export * from "./schemas";
+export type { Database, Json } from "./database.types";
