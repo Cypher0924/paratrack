@@ -57,7 +57,12 @@ Run from the repo root:
 - `npx turbo run dev --filter=web` (or `native`, `@repo/ui`): one workspace
 - `npm run android -w native` / `npm run ios -w native`: native builds via Expo
 
-There are no tests. Lint exists only in `web` (`npx turbo run lint --filter=web`), using the ESLint CLI with flat config `apps/web/eslint.config.mjs`. Next 16 removed `next lint`.
+- `npm test`: Vitest (unit, integration, repo config). Integration tests hit `paratrack-dev` using `apps/web/.env.local` and the root `.env`.
+- `npx playwright test -c apps/web`: e2e on iPhone 13 and Pixel 7 emulation. CI runs it. Locally it needs `npx playwright install`.
+- CI (`.github/workflows/ci.yml`) runs build, lint, native typecheck, Vitest and Playwright against a throwaway Supabase on the runner.
+- Supabase CLI is linked to `paratrack-dev`. Auth settings live in `supabase/config.toml` and reach the project with `npx supabase config push`. The root `.env` only holds values that `config.toml` reads through `env()`.
+
+Lint exists only in `web` (`npx turbo run lint --filter=web`), using the ESLint CLI with flat config `apps/web/eslint.config.mjs`. Next 16 removed `next lint`.
 
 ### Architecture
 
