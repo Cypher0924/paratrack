@@ -40,5 +40,10 @@ Open the push preview link on the Android phone:
 5. Open it. The badge clears.
 6. Later: repeat on a borrowed iPhone (iOS 16.4+, installed to the Home Screen).
 
+## Device findings
+- Push arrived with the app closed. Copy and icon were correct.
+- It was attributed to Chrome (Chrome label, UNSUBSCRIBE action) instead of the installed ParaTrack WebAPK. Cause: manifest had no scope, so scope defaulted to /spike/ while the service worker scope is /.
+- Fix: manifest scope set to / (start_url unchanged). Retest pending.
+
 ## Answer
 Pending device results.
