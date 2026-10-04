@@ -64,3 +64,13 @@ react-native 0.83.10, expo 55.0.31, @maplibre/maplibre-react-native 11.4.1, expo
 - EAS generated the Android keystore non-interactively on first build.
 - Build: https://expo.dev/accounts/cyph0924s-team/projects/paratrack/builds/722f14f6-d1dc-42c0-a498-0ef959a02602 (FINISHED, about 40 min including queue)
 - APK: https://expo.dev/artifacts/eas/txVc3B-qADti-ikJJ2aVzAxnBoeHSjtuO8YzHVEcztw.apk
+
+## Device findings (Infinix X669, Android 12)
+
+- Map works (OpenFreeMap Tarlac tiles).
+- Shared UI works on Android (NativeWind, phosphor icon, Reanimated transition).
+- Location crashed on Start: `IllegalArgumentException: requested job be persisted without holding RECEIVE_BOOT_COMPLETED permission` at `TaskManagerUtils.updateOrScheduleJob` via `LocationTaskConsumer.reportLocationsImmediately`.
+- Fix: `android.permissions: ["android.permission.RECEIVE_BOOT_COMPLETED"]` in `apps/native/app.json` (prebuild manifest confirmed). Phase 2 must keep it.
+- Rebuilt: https://expo.dev/accounts/cyph0924s-team/projects/paratrack/builds/9f0f5348-7293-4f7d-8d90-f9d8e89e9da2
+- APK: https://expo.dev/artifacts/eas/lUEjERD3gC0fBo_8RXw_0LBQGMQ_CD3l0_pGPrJ4PMw.apk
+- Location retest pending.
