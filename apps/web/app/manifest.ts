@@ -5,6 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ParaTrack",
     short_name: "ParaTrack",
     start_url: "/spike/push",
+    scope: "/",
     display: "standalone",
     background_color: "#1565C0",
     theme_color: "#1565C0",
