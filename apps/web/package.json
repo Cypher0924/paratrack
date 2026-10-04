@@ -19,6 +19,7 @@
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@repo/typescript-config": "*",
     "@types/minimatch": "^6.0.0",
     "@types/node": "^20.10.6",
