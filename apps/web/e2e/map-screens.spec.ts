@@ -1,0 +1,129 @@
+import { expect, test, type Browser, type TestInfo } from "@playwright/test";
+import { signIn } from "./support/auth";
+
+// One seeded vehicle per project, never NBC 4821. Numbers: 10/13 commuters, 14/15 drivers.
+const setups = {
+  iphone: {
+    commuter: "+639000000010",
+    driver: "+639000000014",
+    plate: "NAK 2290",
+    label: "E-jeep 07",
+    // Commuter stands at Juan Luna St. The vehicle starts at the beginning of Downtown-SM, 1 km before it.
+    at: { latitude: 15.486681, longitude: 120.59621 },
+    ping: { lat: 15.489709, lng: 120.592027 },
+  },
+  pixel: {
+    commuter: "+639000000013",
+    driver: "+639000000015",
+    plate: "NCD 5127",
+    label: "E-jeep 12",
+    // Burgos St is on Capitol-SM only. The vehicle starts at Capitol.
+    at: { latitude: 15.487662, longitude: 120.587637 },
+    ping: { lat: 15.48015, lng: 120.587754 },
+  },
+} as const;
+
+type Signed = Awaited<ReturnType<typeof signIn>>;
+
+test.describe.configure({ mode: "serial" });
+
+let cfg: (typeof setups)[keyof typeof setups];
+let driver: Signed;
+let commuter: Signed;
+let pinger: ReturnType<typeof setInterval> | undefined;
+
+const ping = () => driver.client.rpc("driver_ping", { p_lat: cfg.ping.lat, p_lng: cfg.ping.lng, p_speed: 8 });
+
+test.beforeAll(async ({}, info) => {
+  cfg = setups[info.project.name as keyof typeof setups];
+  driver = await signIn(cfg.driver);
+  commuter = await signIn(cfg.commuter);
+  const verified = await driver.client.rpc("verify_driver", { p_operator_code: "TPC-0412", p_plate: cfg.plate });
+  if (verified.error) throw verified.error;
+  const shift = await driver.client.rpc("start_shift");
+  if (shift.error) throw shift.error;
+  const first = await ping();
+  if (first.error) throw first.error;
+  pinger = setInterval(() => void ping(), 5000);
+});
+
+test.afterAll(async () => {
+  clearInterval(pinger);
+  await driver?.client.rpc("end_shift");
+  // Leave no active trip behind for the next run.
+  await commuter?.client.from("trips").update({ status: "ended" }).in("status", ["tracking", "onboard"]);
+});
+
+// Project settings carry the device emulation, so a context made by hand needs them too.
+const commuterContext = (browser: Browser, info: TestInfo) => {
+  const { defaultBrowserType: _ignored, ...device } = info.project.use;
+  return browser.newContext({
+    ...device,
+    storageState: commuter.storageState,
+    permissions: ["geolocation"],
+    geolocation: { ...cfg.at, accuracy: 10 },
+  });
+};
+
+test("home lists the vehicle, tracking and the on board flow work", async ({ browser }, info) => {
+  const context = await commuterContext(browser, info);
+  const page = await context.newPage();
+  await page.goto("/home");
+
+  const row = page.getByRole("button", { name: new RegExp(cfg.label) });
+  await expect(row).toBeVisible({ timeout: 20_000 });
+  await expect(row).toContainText(/\d+ min/);
+
+  await row.click();
+  await expect(page).toHaveURL(/\/vehicle\//);
+  await expect(page.getByText(/\d+ min/).first()).toBeVisible();
+  await page.getByRole("button", { name: /^Track this e-jeep/ }).click();
+
+  await expect(page).toHaveURL(/\/trip\/[^/]+$/);
+  await expect(page.getByText(/^Arriving at .* in$/)).toBeVisible();
+  await expect(page.getByText(/^\d+ min$/).first()).toBeVisible();
+
+  await page.getByRole("button", { name: "I'm on board" }).click();
+  await expect(page).toHaveURL(/\/onboard$/);
+  await expect(page.getByText(/^Get off at /)).toBeVisible();
+  await expect(page.getByRole("switch", { name: /Para alert/ })).toBeVisible();
+
+  await page.getByRole("button", { name: "End trip" }).click();
+  await expect(page).toHaveURL(/\/home$/);
+  await context.close();
+});
+
+test("offline shows the banner", async ({ browser }, info) => {
+  const context = await commuterContext(browser, info);
+  const page = await context.newPage();
+  await page.goto("/home");
+  await expect(page.getByRole("button", { name: new RegExp(cfg.label) })).toBeVisible({ timeout: 20_000 });
+  await context.setOffline(true);
+  await expect(page.getByText("You are offline")).toBeVisible({ timeout: 15_000 });
+  await context.setOffline(false);
+  await context.close();
+});
+
+test("the driver ending the shift shows stopped sharing", async ({ browser }, info) => {
+  const vehicleId = (await driver.client.from("drivers").select("vehicle_id").single()).data?.vehicle_id;
+  const routeStops = await commuter.client.from("vehicles").select("route_id").eq("id", vehicleId!).single();
+  const links = await commuter.client.from("route_stops").select("stop_id, seq").eq("route_id", routeStops.data!.route_id).order("seq");
+  const ids = links.data!.map((l) => l.stop_id);
+  const trip = await commuter.client
+    .from("trips")
+    .insert({ vehicle_id: vehicleId!, board_stop_id: ids[1], alight_stop_id: ids[ids.length - 1] })
+    .select("id")
+    .single();
+  expect(trip.error).toBeNull();
+
+  const context = await commuterContext(browser, info);
+  const page = await context.newPage();
+  await page.goto(`/trip/${trip.data!.id}`);
+  await expect(page.getByText(/^Arriving at /)).toBeVisible({ timeout: 20_000 });
+
+  clearInterval(pinger);
+  await driver.client.rpc("end_shift");
+  await expect(page.getByText(/stopped sharing/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("button", { name: /Find another e-jeep/ })).toBeVisible();
+  await context.close();
+});
