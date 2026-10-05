@@ -1,4 +1,4 @@
-// Figma color variables. Components read hex from here where a prop needs a color (icons, spinners).
+// Figma color variables. Shared by the Tailwind preset and by components that need a color value (icons, SVG).
 module.exports = {
   background: "#ffffff",
   surface: "#ffffff",
