@@ -46,11 +46,13 @@ module.exports = {
         "body-sm": font(14, 20, -0.14),
         caption: font(12, 16, 0),
         "map-label": font(11, 14, 0),
+        "mono-md": font(14, 20, 0),
       },
       // Only 400 and 500 exist. `font-sans-medium` is 500 (see the app tailwind configs for the family).
       fontFamily: {
         sans: ["Inter"],
         "sans-medium": ["Inter"],
+        "mono-medium": ["Geist Mono"],
       },
       boxShadow: {
         raised: "0 6px 18px 0 rgba(14,26,43,0.08), 0 1px 3px 0 rgba(14,26,43,0.05)",

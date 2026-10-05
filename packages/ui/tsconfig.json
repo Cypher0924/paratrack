@@ -3,7 +3,8 @@
   "include": ["."],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
+    "strict": true,
     "jsx": "react-jsx",
-    "strict": true
+    "jsxImportSource": "nativewind"
   }
 }
