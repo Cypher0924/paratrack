@@ -207,7 +207,7 @@ Details in `docs/spikes/web-ui.md`, `native.md` and `push.md`. The spike code st
 | Same shared UI on Android | Yes (Infinix X669, Android 12) |
 | MapLibre on Expo SDK 55 with OpenFreeMap tiles | Yes |
 | Web push on Android to the installed web app, app closed | Yes, with the ParaTrack name, app icon, status-bar icon and badge |
-| Android background location every ~5 s with the screen off | Pending. The crash cause is found and fixed (below). Needs an uninstall, restart and reinstall retest |
+| Android background location every ~5 s with the screen off | Yes (2026-10-05, after uninstall, restart, reinstall). 157 fixes in 15 min, 9 min locked, median 5 s, largest gap 25 s, every network check 200. Indoor fixes jumped up to ~700 m |
 | Web push on iPhone | Pending a borrowed iPhone. The test page must be public first, because iPhone home-screen apps don't share Safari's Vercel login cookie |
 
 Carried into later phases:
@@ -215,7 +215,7 @@ Carried into later phases:
 - **`@repo/ui`:** consumed from source (no tsup build). `CLAUDE.md` gets updated when this lands in Phase 4.
 - **Web setup (Phase 4):** `transpilePackages` for the React Native packages, a `__DEV__` define, `react-native-safe-area-context` stubbed in both bundlers (real screens use CSS `env(safe-area-inset-*)` instead), `jsxImportSource: "nativewind"`, and `cssInterop(Animated.createAnimatedComponent(View), { className: "style" })` for animated components.
 - **Native setup (Phase 4):** NativeWind's Babel preset, `withNativeWind` in Metro, and `global.css` loaded in the root layout.
-- **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen.
+- **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen. Drop fixes with poor accuracy before `driver_ping` (indoor fixes jumped ~700 m on the test phone).
 - **Push (Phase 8):** the manifest `scope` must contain the service worker scope (`"/"`), or Chrome shows notifications as website notifications with an Unsubscribe button. Notifications need a white-on-transparent `badge` image (`assets/brand/notification-icon.svg`). The send endpoint must require login. One VAPID key pair serves every Vercel environment.
 - **Map provider:** Google Maps (decided 2026-10-05, replacing the MapLibre spike). The map keeps Google's default style. The Google logo and the "Map data" credit must stay visible.
 - **Tooling:** use `npx eas-cli@latest` (plain `npx eas-cli` picks a cached 22.6, which is too old). `adb` is installed. Android 12 Wireless debugging works for logs without a USB cable.

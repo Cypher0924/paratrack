@@ -7,7 +7,7 @@ Branch `spike-native`. Throwaway code. Screens: `apps/native/app/spike-map.tsx`,
 | Question | Answer |
 | --- | --- |
 | A. Does `@maplibre/maplibre-react-native` run on Expo SDK 55 (new architecture) with OpenFreeMap tiles? | Pending device check. Installs cleanly, peer deps satisfied (`expo >=54`, `react-native >=0.80`, `react >=19.1`), config plugin applies, JS bundles. Rendering unproven. |
-| B. Does an `expo-location` background task keep recording and reaching the network every ~5 s with the screen off for 5+ minutes? | Pending device check. Config and permissions verified by prebuild. |
+| B. Does an `expo-location` background task keep recording and reaching the network every ~5 s with the screen off for 5+ minutes? | Yes, after the RECEIVE_BOOT_COMPLETED fix plus uninstall, restart, reinstall. See device findings. |
 
 ## What bundling proved
 
@@ -73,4 +73,5 @@ react-native 0.83.10, expo 55.0.31, @maplibre/maplibre-react-native 11.4.1, expo
 - Fix: `android.permissions: ["android.permission.RECEIVE_BOOT_COMPLETED"]` in `apps/native/app.json` (prebuild manifest confirmed). Phase 2 must keep it.
 - Rebuilt: https://expo.dev/accounts/cyph0924s-team/projects/paratrack/builds/9f0f5348-7293-4f7d-8d90-f9d8e89e9da2
 - APK: https://expo.dev/artifacts/eas/lUEjERD3gC0fBo_8RXw_0LBQGMQ_CD3l0_pGPrJ4PMw.apk
-- Location retest pending.
+- Retest 2026-10-05 (clean install after a restart): no crash. App log: 157 entries from 7:16 to 7:31 PM, largest gap 25.3 s, non-200 health 0. Screen off 7:16:57-7:21:33 and 7:22:27-7:31 (events log). Logcat: TaskService ran the task 137 times, median gap 5.1 s. Battery setting left at default.
+- Indoor fixes jumped between two spots about 700 m apart (15.66015,120.62988 and 15.66599,120.62592). Phase 7 must drop low-accuracy fixes before `driver_ping`.
