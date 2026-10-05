@@ -1,12 +1,12 @@
 "use client";
 
-import Welcome from "@repo/ui/src/screens/onboarding/Welcome";
+import Location from "@repo/ui/src/screens/onboarding/Location";
 import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
     <ScreenFrame>
-      <Welcome />
+      <Location />
     </ScreenFrame>
   );
 }
