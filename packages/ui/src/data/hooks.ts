@@ -65,6 +65,9 @@ export const useRouteStops = (routeId: string | undefined) => {
 
 export type LiveStatus = "connecting" | "live" | "offline";
 
+// supabase.channel(name) returns the existing channel for a reused name, so each hook instance needs its own.
+let channelSeq = 0;
+
 export const useLiveVehicles = () => {
   const online = useOnline();
   const [vehicles, setVehicles] = useState<LiveVehicle[]>([]);
@@ -84,7 +87,7 @@ export const useLiveVehicles = () => {
         () => active && setChannel("offline"),
       );
     const ch = supabase
-      .channel("vehicle_live")
+      .channel(`vehicle_live:${++channelSeq}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "vehicle_live" }, (p) => {
         if (!p.new || !("vehicle_id" in p.new)) return;
         setVehicles((vs) => mergeLive(vs, p.new as VehicleLive));
@@ -155,7 +158,7 @@ export const useNotifications = () => {
     fetchNotifications(supabase).then((n) => active && setItems(n), () => {});
     // RLS limits Realtime delivery to this user's rows.
     const ch = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${++channelSeq}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (p) =>
         setItems((n) => [p.new as AppNotification, ...n]),
       )
