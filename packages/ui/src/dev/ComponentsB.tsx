@@ -1,7 +1,17 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { ShareNetworkIcon } from "phosphor-react-native/src/icons/ShareNetwork";
+import { GraduationCapIcon } from "phosphor-react-native/src/icons/GraduationCap";
+import { UserCircleIcon } from "phosphor-react-native/src/icons/UserCircle";
+import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { ScrollView, Text, View } from "react-native";
 import type { SeatStatus } from "@repo/core";
+import { AlertItem } from "../components/AlertItem";
+import { AppBar } from "../components/AppBar";
+import { ArrivalRow } from "../components/ArrivalRow";
 import { AppIcon, Logo } from "../components/Brand";
+import { RadioCard } from "../components/RadioCard";
+import { SearchBar } from "../components/SearchBar";
+import { SettingsRow } from "../components/SettingsRow";
 import { LineItem } from "../components/LineItem";
 import { MapCallout } from "../components/MapCallout";
 import { Sheet } from "../components/Sheet";
@@ -30,6 +40,8 @@ const states: { status: SeatStatus; seatsLeft: number; selected?: boolean }[] = 
 
 /** Dev gallery for Task 3a components, routed at /dev/components-b. */
 export default function ComponentsB() {
+  const [notify, setNotify] = useState(true);
+  const [who, setWho] = useState<"commuter" | "driver">("commuter");
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-5 px-4 py-5">
       <Text className="font-sans-medium text-title-md text-foreground">Components B</Text>
@@ -92,6 +104,43 @@ export default function ComponentsB() {
           <YouMarker />
           <MapCallout name="E-jeep 18" eta="7 min" />
         </View>
+      </Section>
+
+      <Section title="Arrival row">
+        <View>
+          <ArrivalRow vehicleType="ejeep" route="Downtown-SM" meta="E-jeep from Rizal Ave · 3 min walk" badge={{ tone: "warning", label: "3 seats left" }} eta="7 min" time="9:43 AM" />
+          <ArrivalRow vehicleType="shuttle" route="Capitol Loop" meta="Shuttle from Romulo Blvd · 5 min walk" badge={{ tone: "success", label: "12 seats" }} eta="12 min" time="9:48 AM" />
+        </View>
+      </Section>
+
+      <Section title="Settings row">
+        <View>
+          <SettingsRow icon={GraduationCapIcon} title="Student fare" description="20 percent off every trip" />
+          <SettingsRow icon={BellIcon} title="Arrival alerts" description="Tell me before my stop" trailing="switch" checked={notify} onCheckedChange={setNotify} />
+          <SettingsRow icon={GraduationCapIcon} title="Language" description="Used across the app" trailing="value" value="English" />
+          <SettingsRow icon={GraduationCapIcon} title="Version" description="ParaTrack for Tarlac City" trailing="none" />
+        </View>
+      </Section>
+
+      <Section title="Radio card">
+        <RadioCard icon={UserCircleIcon} title="I ride" description="Find a vehicle and track it" selected={who === "commuter"} onPress={() => setWho("commuter")} />
+        <RadioCard icon={UserCircleIcon} title="I drive a route" description="Share my vehicle on the map" selected={who === "driver"} onPress={() => setWho("driver")} />
+      </Section>
+
+      <Section title="Alert item">
+        <View>
+          <AlertItem title="Alert title" body="What happened and what it means for your trip." time="2 min ago" unread />
+          <AlertItem tone="warning" title="Delay on Downtown-SM" body="Traffic near Capitol adds about 5 minutes." time="1 hr ago" />
+        </View>
+      </Section>
+
+      <Section title="App bar">
+        <AppBar title="Title" />
+        <AppBar title="Title" action={{ icon: ShareNetworkIcon, label: "Share trip" }} />
+      </Section>
+
+      <Section title="Search bar">
+        <SearchBar />
       </Section>
 
       <Section title="Brand">
