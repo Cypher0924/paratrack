@@ -8,6 +8,7 @@ module.exports = {
       fontFamily: {
         sans: ["Inter_400Regular"],
         "sans-medium": ["Inter_500Medium"],
+        display: ["Geist_500Medium"],
         "mono-medium": ["GeistMono_500Medium"],
       },
     },

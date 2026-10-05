@@ -2,7 +2,7 @@ import "./globals.css";
 // After Tailwind, so Arc's tokens win over preflight on equal specificity.
 import "@/components/arc/foundation.css";
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Geist, Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { RegisterServiceWorker } from "./register-sw";
 
@@ -10,6 +10,14 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Screen headings and the welcome headline (Figma Display/LG, Title/LG).
+const geist = Geist({
+  subsets: ["latin"],
+  weight: "500",
+  variable: "--font-geist",
   display: "swap",
 });
 
@@ -37,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${geist.variable} ${geistMono.variable}`}>
       <body className="bg-background font-sans text-foreground">
         <Providers>{children}</Providers>
         <RegisterServiceWorker />

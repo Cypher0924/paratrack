@@ -13,6 +13,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         "sans-medium": ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-geist)", "system-ui", "sans-serif"],
         "mono-medium": ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
     },

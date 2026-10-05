@@ -18,6 +18,16 @@ export type RouteStop = { routeId: string; seq: number; offsetM: number; stop: S
 export type Vehicle = Pick<Tables["vehicles"]["Row"], "id" | "route_id" | "label" | "plate" | "capacity">;
 export type LiveVehicle = Vehicle & { live: VehicleLive | null };
 
+/** What `verify_driver` returns for the driver's assigned vehicle (Figma 05). */
+export type DriverVerification = {
+  vehicle_id: string;
+  label: string;
+  plate: string;
+  capacity: number;
+  route_id: string;
+  route_name: string;
+};
+
 export const must = <T>(res: { data: T | null; error: { message: string } | null }): T => {
   if (res.error) throw new Error(res.error.message);
   return res.data as T;
