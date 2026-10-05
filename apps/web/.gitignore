@@ -35,3 +35,5 @@ yarn-error.log*
 
 /test-results/
 /playwright-report/
+# Screenshot baselines come from CI (Linux) only
+/e2e/**/*-win32.png
