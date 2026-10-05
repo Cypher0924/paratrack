@@ -16,3 +16,5 @@ export * from "./components/YouMarker";
 export * from "./components/MapCallout";
 export * from "./components/TimelineRow";
 export * from "./components/LineItem";
+export * from "./components/TabBar";
+export * from "./components/Sheet";
