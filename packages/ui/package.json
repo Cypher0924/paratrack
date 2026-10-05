@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",
     "expo-location": "~55.1.14",
+    "expo-task-manager": "~55.0.20",
     "phosphor-react-native": "^3.0.6",
     "react": "19.2.0",
     "react-native": "0.83.10",

@@ -47,6 +47,8 @@ module.exports = {
         caption: font(12, 16, 0),
         "map-label": font(11, 14, 0),
         "mono-md": font(14, 20, 0),
+        "title-lg": font(28, 32, -0.7),
+        "display-2xl": font(72, 76, -2.16),
       },
       // Only 400 and 500 exist. `font-sans-medium` is 500 (see the app tailwind configs for the family).
       fontFamily: {

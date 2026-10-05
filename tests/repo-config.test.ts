@@ -18,4 +18,14 @@ describe("repo config", () => {
     expect(packages).toContain(app.android.package);
     expect(app.android.googleServicesFile).toBe("./google-services.json");
   });
+
+  it("keeps the Android location setup the driver background task needs", () => {
+    const app = JSON.parse(read("apps/native/app.json")).expo;
+    expect(app.android.permissions).toContain("android.permission.RECEIVE_BOOT_COMPLETED");
+    const loc = app.plugins.find((p: unknown) => Array.isArray(p) && p[0] === "expo-location");
+    expect(loc[1].isAndroidBackgroundLocationEnabled).toBe(true);
+    expect(loc[1].isAndroidForegroundServiceEnabled).toBe(true);
+    // defineTask has to load at app start, not with a screen
+    expect(read("apps/native/index.js")).toContain("@repo/ui/src/lib/locationTask");
+  });
 });

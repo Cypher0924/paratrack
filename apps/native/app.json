@@ -32,7 +32,21 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "ParaTrack shares your location with riders while your shift is online.",
+          "locationAlwaysPermission": "ParaTrack shares your location with riders while your shift is online.",
+          "locationWhenInUsePermission": "ParaTrack uses your location to show nearby vehicles.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "d210b883-3945-4d7f-8057-2a7e2c530aa7"
