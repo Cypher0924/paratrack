@@ -43,3 +43,5 @@ export * from "./components/AppBar";
 export * from "./components/SearchBar";
 export * from "./lib/location";
 export * from "./data/origin";
+export * from "./data/saved";
+export * from "./data/search";
