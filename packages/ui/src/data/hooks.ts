@@ -114,28 +114,32 @@ export const useLiveVehicles = () => {
 export const useNearby = (position: { lat: number; lng: number } | null) => {
   const { data: routes } = useRoutes();
   const { data: routeStops } = useAllRouteStops();
-  const { vehicles, status } = useLiveVehicles();
+  const { vehicles, status, lastUpdate } = useLiveVehicles();
   const lat = position?.lat;
   const lng = position?.lng;
   const rows = useMemo(
     () => (lat === undefined || lng === undefined || !routes || !routeStops ? [] : computeNearby({ lat, lng }, routes, routeStops, vehicles)),
     [lat, lng, routes, routeStops, vehicles],
   );
-  return { rows, status, loading: !routes || !routeStops };
+  return { rows, status, loading: !routes || !routeStops, lastUpdate };
 };
 
 export const useTrips = () => {
   const { user } = useSession();
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const userId = user?.id;
   useEffect(() => {
     if (!userId) return setTrips([]);
-    fetchActiveTrips(supabase).then(setTrips, () => {});
+    fetchActiveTrips(supabase)
+      .then(setTrips, () => {})
+      .finally(() => setLoaded(true));
   }, [userId]);
   const replace = (t: Trip) =>
     setTrips((ts) => (t.status === "ended" ? ts.filter((x) => x.id !== t.id) : ts.some((x) => x.id === t.id) ? ts.map((x) => (x.id === t.id ? t : x)) : [t, ...ts]));
   return {
     trips,
+    loaded,
     startTrip: async (a: { vehicleId: string; boardStopId: string; alightStopId: string }) => {
       const t = await startTripQuery(supabase, a);
       replace(t);
