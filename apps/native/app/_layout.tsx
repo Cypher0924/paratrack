@@ -1,7 +1,28 @@
-import { Stack } from "expo-router"
+import "../global.css";
+import { Inter_400Regular, Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-const AppLayout = () => {
-  return <Stack />
+SplashScreen.preventAutoHideAsync();
+
+export default function AppLayout() {
+  const [loaded, error] = useFonts({ Inter_400Regular, Inter_500Medium });
+  const ready = loaded || !!error;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
 }
-
-export default AppLayout

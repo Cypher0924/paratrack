@@ -25,13 +25,14 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.paratrack.app",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": ["android.permission.RECEIVE_BOOT_COMPLETED"]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-router"],
+    "plugins": ["expo-router", "expo-font"],
     "extra": {
       "eas": {
         "projectId": "d210b883-3945-4d7f-8057-2a7e2c530aa7"
