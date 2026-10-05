@@ -18,3 +18,4 @@ export * from "./components/TimelineRow";
 export * from "./components/LineItem";
 export * from "./components/TabBar";
 export * from "./components/Sheet";
+export * from "./components/Brand";
