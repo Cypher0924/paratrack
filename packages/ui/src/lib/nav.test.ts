@@ -8,5 +8,5 @@ const names = (f: string) =>
 
 it("nav.web and nav.native export the same names", () => {
   expect(names("./nav.web.ts")).toEqual(names("./nav.native.ts"));
-  expect(names("./nav.web.ts")).toEqual(["useNav", "useParams"]);
+  expect(names("./nav.web.ts")).toEqual(["useNav", "useParams", "useQuery"]);
 });
