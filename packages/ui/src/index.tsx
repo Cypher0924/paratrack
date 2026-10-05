@@ -14,3 +14,5 @@ export * from "./components/VehicleMarker";
 export * from "./components/StopMarker";
 export * from "./components/YouMarker";
 export * from "./components/MapCallout";
+export * from "./components/TimelineRow";
+export * from "./components/LineItem";
