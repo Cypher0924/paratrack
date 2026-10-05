@@ -35,7 +35,7 @@ Why CI-only: Vitest and Playwright need a running Postgres, Auth and Realtime to
 |---|---|
 | Web | Next.js 16 App Router, react-native-web, PWA via `app/manifest.ts` + hand-written `public/sw.js` |
 | Android | Expo SDK 55, expo-router, dev build (no Expo Go, native modules needed) |
-| Map | Google Maps (user decision 2026-10-05). Web: Maps JavaScript API via `@vis.gl/react-google-maps`, Advanced Markers, and a Map ID whose cloud style imports `packages/ui/src/map/figma-map-style.json`. Android: `react-native-maps` with the Google provider and the same JSON as `customMapStyle`. Two API keys: a browser key restricted to the app's domains, and an Android key restricted to `com.paratrack.app` + the signing SHA-1. Needs a Google Cloud billing account. Web gets about 10,000 free map loads a month, Android maps are free |
+| Map | Google Maps (user decision 2026-10-05). Web: Maps JavaScript API via `@vis.gl/react-google-maps`, Advanced Markers, and a Map ID (needed for Advanced Markers). Android: `react-native-maps` with the Google provider. Both use Google's default map style (user decision 2026-10-05). Two API keys: a browser key restricted to the app's domains, and an Android key restricted to `com.paratrack.app` + the signing SHA-1. Needs a Google Cloud billing account. Web gets about 10,000 free map loads a month, Android maps are free |
 | Icons / font | `phosphor-react-native` (Figma uses Phosphor names), Inter |
 | Components | React Native Reusables copied into `@repo/ui` with its CLI, styled with NativeWind (Tailwind for React Native) using the Figma tokens |
 | Animation | Reanimated 4 (ships with Expo SDK 55). Its CSS-style transitions and entering/exiting animations work on Android and web. Moti only if Reanimated's API falls short |
@@ -217,7 +217,7 @@ Carried into later phases:
 - **Native setup (Phase 4):** NativeWind's Babel preset, `withNativeWind` in Metro, and `global.css` loaded in the root layout.
 - **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen.
 - **Push (Phase 8):** the manifest `scope` must contain the service worker scope (`"/"`), or Chrome shows notifications as website notifications with an Unsubscribe button. Notifications need a white-on-transparent `badge` image (`assets/brand/notification-icon.svg`). The send endpoint must require login. One VAPID key pair serves every Vercel environment.
-- **Map provider:** Google Maps (decided 2026-10-05, replacing the MapLibre spike). The Figma-colored style is ready in `packages/ui/src/map/figma-map-style.json`: Figma land, roads, parks, water and labels, with POIs, transit and road icons hidden. The Google logo and the "Map data" credit must stay visible.
+- **Map provider:** Google Maps (decided 2026-10-05, replacing the MapLibre spike). The map keeps Google's default style. The Google logo and the "Map data" credit must stay visible.
 - **Tooling:** use `npx eas-cli@latest` (plain `npx eas-cli` picks a cached 22.6, which is too old). `adb` is installed. Android 12 Wireless debugging works for logs without a USB cable.
 - **Phase 12:** the APK also requests storage and draw-over-apps permissions it doesn't use. Block them with `android.blockedPermissions`.
 
