@@ -20,6 +20,8 @@
     "@repo/core": "*",
     "react": "19.2.0",
     "react-native": "0.83.10",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "phosphor-react-native": "^3.0.6",
+    "react-native-svg": "15.15.3"
   }
 }
