@@ -10,3 +10,7 @@ export * from "./data/notifications";
 export * from "./data/compute";
 export * from "./data/hooks";
 export { supabase } from "./lib/supabase";
+export * from "./components/VehicleMarker";
+export * from "./components/StopMarker";
+export * from "./components/YouMarker";
+export * from "./components/MapCallout";
