@@ -41,3 +41,5 @@ export * from "./components/RadioCard";
 export * from "./components/AlertItem";
 export * from "./components/AppBar";
 export * from "./components/SearchBar";
+export * from "./lib/location";
+export * from "./data/origin";
