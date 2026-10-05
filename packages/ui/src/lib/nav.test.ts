@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 
 const names = (f: string) =>
-  [...readFileSync(new URL(f, import.meta.url), "utf8").matchAll(/export function (\w+)/g)]
+  [...readFileSync(`${__dirname}/${f}`, "utf8").matchAll(/export function (\w+)/g)]
     .map((m) => m[1])
     .sort();
 
