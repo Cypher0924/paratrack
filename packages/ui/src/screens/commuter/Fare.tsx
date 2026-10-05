@@ -40,7 +40,7 @@ export default function Fare() {
   const percent = fareType === "regular" ? 0 : 20;
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-safe">
       <AppBar title="Fare breakdown" onBack={() => nav.back()} />
       <ScrollView contentContainerClassName="gap-6 px-4 pb-8 pt-4">
         {kind && route && (

@@ -1,3 +1,4 @@
+import { BusIcon } from "phosphor-react-native/src/icons/Bus";
 import { useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { groupByDay, timeAgo } from "@repo/core";
@@ -27,6 +28,7 @@ function Group({ title, items, now }: { title: string; items: AppNotification[];
         <AlertItem
           key={n.id}
           tone={n.kind === "service" ? "warning" : "accent"}
+          icon={n.kind === "service" ? undefined : BusIcon}
           title={n.title ?? ""}
           body={n.body ?? ""}
           time={timeAgo(new Date(n.created_at), now)}
@@ -50,7 +52,7 @@ export default function Alerts() {
   );
   if (!ready) return null;
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-safe">
       <ScrollView contentContainerClassName="gap-4 px-4 pb-6 pt-4">
         <View className="flex-row items-center gap-3">
           <Text role="heading" className="flex-1 font-sans-medium text-[28px] leading-[32px] text-foreground">

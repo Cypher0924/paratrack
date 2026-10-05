@@ -23,7 +23,7 @@ export default function Stops() {
     nav.back();
   };
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-safe">
       <AppBar title="Choose your stop" backLabel="Back" onBack={() => nav.back()} />
       <View className="px-4 pb-2 pt-2">
         <View className="h-control-md flex-row items-center gap-2 rounded-control border border-border-strong bg-surface px-4">

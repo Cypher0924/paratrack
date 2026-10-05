@@ -43,7 +43,7 @@ export default function Search() {
   }, [origin, position, toId, routes, routeStops, vehicles, profile?.fare_type]);
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="pb-8">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="pb-8 pt-safe">
       <View className="flex-row items-center gap-2 pl-1 pr-2 pt-2">
         <IconButton icon={ArrowLeftIcon} label="Back" onPress={() => nav.back()} />
         <View className="flex-1 overflow-hidden rounded-control border border-border-strong bg-surface">

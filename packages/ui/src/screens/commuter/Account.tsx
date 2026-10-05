@@ -55,7 +55,7 @@ export default function Account() {
   const fareType = profile?.fare_type ?? "regular";
   const name = profile?.display_name || "Your account";
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-safe">
       <ScrollView contentContainerClassName="gap-5 px-4 pb-6 pt-4">
         <Text role="heading" className="font-sans-medium text-[28px] leading-[32px] text-foreground">
           Account
