@@ -1,12 +1,12 @@
 "use client";
 
-import { DriverHome } from "@repo/ui/src/screens/driver";
+import Verify from "@repo/ui/src/screens/onboarding/Verify";
 import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
     <ScreenFrame>
-      <DriverHome />
+      <Verify />
     </ScreenFrame>
   );
 }

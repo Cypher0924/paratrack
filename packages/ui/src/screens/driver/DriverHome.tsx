@@ -104,7 +104,7 @@ export function DriverHome() {
 
                 <View className="items-center pt-2">
                   <Text className="font-sans text-body-sm text-text-muted">Passengers on board</Text>
-                  <Text aria-live="polite" className="font-sans-medium text-display-2xl text-foreground">
+                  <Text aria-live="polite" className="font-display text-display-2xl text-foreground">
                     {s.seats}
                   </Text>
                   <Text className="font-sans text-body-md text-text-secondary">of {v.capacity} seats</Text>
@@ -161,7 +161,7 @@ export function DriverHome() {
             ) : (
               <>
                 <View className="flex-row items-center gap-3">
-                  <Text className="flex-1 font-sans-medium text-title-lg text-foreground">Start your shift</Text>
+                  <Text className="flex-1 font-display text-title-lg text-foreground">Start your shift</Text>
                   <Badge tone="neutral" label="Offline" icon={null} />
                 </View>
                 <Text className="font-sans text-body-md text-text-secondary">

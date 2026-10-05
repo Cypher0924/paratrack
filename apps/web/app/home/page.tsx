@@ -1,12 +1,12 @@
 "use client";
 
-import { DriverHome } from "@repo/ui/src/screens/driver";
+import Home from "@repo/ui/src/screens/states/HomePlaceholder";
 import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
     <ScreenFrame>
-      <DriverHome />
+      <Home />
     </ScreenFrame>
   );
 }

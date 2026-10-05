@@ -1,12 +1,12 @@
 "use client";
 
-import { DriverHome } from "@repo/ui/src/screens/driver";
+import Location from "@repo/ui/src/screens/onboarding/Location";
 import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
     <ScreenFrame>
-      <DriverHome />
+      <Location />
     </ScreenFrame>
   );
 }
