@@ -5,6 +5,7 @@ import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { ClockIcon } from "phosphor-react-native/src/icons/Clock";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { useNav, useParams } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
@@ -16,6 +17,7 @@ import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, 
 
 /** Figma 11 Tracking, with 23 Stopped sharing when the vehicle goes offline. */
 export default function Trip() {
+  const { ready } = useSessionGuard("in");
   const { id } = useParams<{ id: string }>();
   const nav = useNav();
   const { trip, loaded, vehicle, route, boardStop, endTrip, setOnboard, setTripAlerts } = useTripContext(id);
@@ -55,6 +57,7 @@ export default function Trip() {
     }
   };
 
+  if (!ready) return null;
   return (
     <View className="flex-1 bg-surface-muted">
       <TransitMap
@@ -94,7 +97,7 @@ export default function Trip() {
                 <Text className="font-sans text-body-sm text-text-muted">
                   {boardStop ? `Arriving at ${boardStop.stop.name} in` : "Arriving in"}
                 </Text>
-                <Text className="font-sans-medium text-display-xl text-foreground">{online && eta !== null ? etaLabel(eta) : "Not sharing"}</Text>
+                <Text className="font-display text-display-xl text-foreground">{online && eta !== null ? etaLabel(eta) : "Not sharing"}</Text>
                 {online && eta !== null && lastSeenAt && (
                   <Text className="font-sans text-body-md text-text-secondary">
                     {clockTime(new Date(now.getTime() + eta * 1000))} · {updatedAgo(lastSeenAt, now)}

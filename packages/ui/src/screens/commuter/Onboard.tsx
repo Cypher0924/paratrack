@@ -5,6 +5,7 @@ import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { InfoIcon } from "phosphor-react-native/src/icons/Info";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { useNav, useParams } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
 import { TransitMap } from "../../components/Map";
@@ -14,6 +15,7 @@ import { kindOf, marker, pointOf, ScrollSheet, SheetTitle, TopOverlay, useNow, u
 
 /** Figma 12 On board. */
 export default function Onboard() {
+  const { ready } = useSessionGuard("in");
   const { id } = useParams<{ id: string }>();
   const nav = useNav();
   const { trip, loaded, vehicle, route, stops, boardStop, alightStop, endTrip, setTripAlerts } = useTripContext(id);
@@ -64,6 +66,7 @@ export default function Onboard() {
     }
   };
 
+  if (!ready) return null;
   return (
     <View className="flex-1 bg-surface-muted">
       <TransitMap

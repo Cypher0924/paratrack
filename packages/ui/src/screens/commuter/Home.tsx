@@ -7,6 +7,7 @@ import { WifiSlashIcon } from "phosphor-react-native/src/icons/WifiSlash";
 import { useNearby, useNotifications } from "../../data/hooks";
 import type { NearbyRow } from "../../data/compute";
 import { useNav } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { ArrivalRow } from "../../components/ArrivalRow";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
@@ -70,6 +71,7 @@ function Empty({ filter, rows, onAll }: { filter: Filter; rows: NearbyRow[]; onA
 
 /** Figma 06 Home with 20 no vehicles, 21 loading and 22 offline. */
 export default function Home() {
+  const { ready } = useSessionGuard("in");
   const nav = useNav();
   const origin = useOrigin();
   const { rows, status, loading, lastUpdate } = useNearby(origin.point);
@@ -98,6 +100,7 @@ export default function Home() {
   const waiting = !origin.needsStop && (!origin.point || loading || (status === "connecting" && rows.length === 0));
   const onTab = (t: Tab) => t !== "map" && nav.replace(t === "alerts" ? "/alerts" : "/account");
 
+  if (!ready) return null;
   return (
     <View className="flex-1 bg-surface-muted">
       <TransitMap

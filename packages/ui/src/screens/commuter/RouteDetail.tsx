@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { PersonSimpleWalkIcon } from "phosphor-react-native/src/icons/PersonSimpleWalk";
 import { useLiveVehicles } from "../../data/hooks";
 import { useNav, useParams } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { ArrivalRow } from "../../components/ArrivalRow";
 import { Badge } from "../../components/Badge";
 import { TransitMap } from "../../components/Map";
@@ -14,6 +15,7 @@ import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, 
 
 /** Figma 08 Route. */
 export default function RouteDetail() {
+  const { ready } = useSessionGuard("in");
   const { id } = useParams<{ id: string }>();
   const nav = useNav();
   const { route, stops } = useRouteWithStops(id);
@@ -54,6 +56,7 @@ export default function RouteDetail() {
   const fares = route?.base_fare != null ? `, fares from ₱${route.base_fare}` : "";
   const offsets = stops.map((s) => s.offsetM);
 
+  if (!ready) return null;
   return (
     <View className="flex-1 bg-surface-muted">
       <TransitMap

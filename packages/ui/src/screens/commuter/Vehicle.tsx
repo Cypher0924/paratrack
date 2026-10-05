@@ -4,7 +4,8 @@ import { Text, View } from "react-native";
 import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { ReceiptIcon } from "phosphor-react-native/src/icons/Receipt";
 import { useFare, useLiveVehicles, useProfile, useTrips } from "../../data/hooks";
-import { useNav, useParams } from "../../lib/nav";
+import { useNav, useParams, useQuery } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
@@ -13,14 +14,15 @@ import { TransitMap } from "../../components/Map";
 import { Plate } from "../../components/Plate";
 import { SettingsRow } from "../../components/SettingsRow";
 import { vehicleKinds } from "../../components/VehicleMarker";
-import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, TopOverlay, useNow, useOrigin, useQueryParams, useRouteWithStops, useSheetHeights } from "./shared";
+import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, TopOverlay, useNow, useOrigin, useRouteWithStops, useSheetHeights } from "./shared";
 
 const fareLabel = { regular: "Regular", student: "Student, 20% off", senior: "Senior, 20% off", pwd: "PWD, 20% off" } as const;
 
 /** Figma 09 Vehicle. `to` in the query is the stop the commuter gets off at. */
 export default function Vehicle() {
+  const { ready } = useSessionGuard("in");
   const { id } = useParams<{ id: string }>();
-  const { to } = useQueryParams();
+  const { to } = useQuery();
   const nav = useNav();
   const { vehicles } = useLiveVehicles();
   const vehicle = vehicles.find((v) => v.id === id) ?? null;
@@ -71,6 +73,7 @@ export default function Vehicle() {
     }
   };
 
+  if (!ready) return null;
   return (
     <View className="flex-1 bg-surface-muted">
       <TransitMap
@@ -110,7 +113,7 @@ export default function Vehicle() {
                 </Text>
               </View>
               <View>
-                <Text className="font-sans-medium text-display-xl text-foreground">{online && eta !== null ? etaLabel(eta) : "Not sharing"}</Text>
+                <Text className="font-display text-display-xl text-foreground">{online && eta !== null ? etaLabel(eta) : "Not sharing"}</Text>
                 {yours && online && eta !== null && (
                   <Text className="font-sans text-body-md text-text-secondary">
                     To {yours.stop.name}, arrives {clockTime(new Date(now.getTime() + eta * 1000))}

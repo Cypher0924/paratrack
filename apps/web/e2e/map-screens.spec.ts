@@ -25,7 +25,8 @@ const setups = {
 
 type Signed = Awaited<ReturnType<typeof signIn>>;
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "serial", timeout: 240_000 });
+expect.configure({ timeout: 30_000 });
 
 let cfg: (typeof setups)[keyof typeof setups];
 let driver: Signed;

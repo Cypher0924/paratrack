@@ -1,10 +1,12 @@
 "use client";
+
 import Screen from "@repo/ui/src/screens/commuter/RouteDetail";
+import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
-    <div className="relative mx-auto flex h-dvh max-w-[430px] flex-col">
+    <ScreenFrame>
       <Screen />
-    </div>
+    </ScreenFrame>
   );
 }

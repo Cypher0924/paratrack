@@ -1,12 +1,12 @@
 "use client";
 
-import Screen from "@repo/ui/src/screens/commuter/Onboard";
+import Verify from "@repo/ui/src/screens/onboarding/Verify";
 import { ScreenFrame } from "@/components/screen-frame";
 
 export default function Page() {
   return (
     <ScreenFrame>
-      <Screen />
+      <Verify />
     </ScreenFrame>
   );
 }

@@ -159,5 +159,3 @@ export const useTripContext = (tripId: string | undefined) => {
   return { ...trips, trip, vehicle, route, stops, boardStop, alightStop, ready, status: live.status };
 };
 
-// Replaced by useQuery from lib/nav once the session work lands.
-export const useQueryParams = (): Record<string, string | undefined> => ({});

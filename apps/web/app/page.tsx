@@ -1,3 +1,12 @@
-export default function Home() {
-  return <main className="p-4 text-title-md font-sans-medium">ParaTrack</main>;
+"use client";
+
+import Welcome from "@repo/ui/src/screens/onboarding/Welcome";
+import { ScreenFrame } from "@/components/screen-frame";
+
+export default function Page() {
+  return (
+    <ScreenFrame>
+      <Welcome />
+    </ScreenFrame>
+  );
 }

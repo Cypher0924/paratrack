@@ -40,6 +40,8 @@ module.exports = {
         pill: "999px",
       },
       fontSize: {
+        "display-lg": font(36, 40, -1.08),
+        "title-lg": font(28, 32, -0.7),
         "title-md": font(22, 28, -0.33),
         "title-sm": font(18, 24, -0.18),
         "body-md": font(16, 22, -0.16),
@@ -50,9 +52,11 @@ module.exports = {
         "display-xl": font(52, 56, -1.56),
       },
       // Only 400 and 500 exist. `font-sans-medium` is 500 (see the app tailwind configs for the family).
+      // `display` is Geist Medium: screen headings and the welcome headline only.
       fontFamily: {
         sans: ["Inter"],
         "sans-medium": ["Inter"],
+        display: ["Geist"],
         "mono-medium": ["Geist Mono"],
       },
       boxShadow: {
