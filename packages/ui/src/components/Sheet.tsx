@@ -55,7 +55,8 @@ export function Sheet({ heights, expanded, defaultExpanded = false, onExpandedCh
         accessibilityRole="button"
         accessibilityLabel={open ? "Collapse sheet" : "Expand sheet"}
         aria-expanded={open}
-        hitSlop={{ top: 12, bottom: 12 }}
+        // 44 px target on web and native. The extra 24 px overlaps the content, so the bar and content stay put.
+        className="z-10 h-control-md w-full -mb-[24px]"
         onPress={toggle}
       >
         <SheetHandle />
