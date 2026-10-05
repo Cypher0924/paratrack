@@ -2,6 +2,7 @@ import "./globals.css";
 // After Tailwind, so Arc's tokens win over preflight on equal specificity.
 import "@/components/arc/foundation.css";
 import { Geist_Mono, Inter } from "next/font/google";
+import { Providers } from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,7 +26,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>
-      <body className="bg-background font-sans text-foreground">{children}</body>
+      <body className="bg-background font-sans text-foreground">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
