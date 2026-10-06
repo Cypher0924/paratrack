@@ -11,6 +11,9 @@ module.exports = {
   "border-subtle": "#e8edf3",
   "border-strong": "#8494a6",
   accent: "#1565c0",
+  // Brand wordmark colors from the ParaTrack logo.
+  "brand-navy": "#020783",
+  "brand-green": "#42a148",
   "accent-strong": "#0d47a1",
   "accent-subtle": "#e3f2fd",
   "accent-foreground": "#ffffff",

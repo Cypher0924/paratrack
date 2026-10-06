@@ -106,7 +106,7 @@ export default function Welcome() {
   }
   return (
     <View className="h-full w-full flex-1 bg-background">
-      <MapPreview routePath={route} className="h-[480px] w-full">
+      <MapPreview routePath={route} className="w-full">
         <Dot left={288} top={154} kind="stop" />
         <Dot left={168} top={151} kind="yours" />
         <Dot left={117} top={248} kind="stop" />
@@ -118,10 +118,10 @@ export default function Welcome() {
         </View>
       </MapPreview>
 
-      {/* The panel overlaps the bottom of the map band, as in Figma. */}
-      <View className="-mt-[404px] flex-1 justify-end rounded-t-surface bg-surface px-6 pb-[50px] pt-8 shadow-sheet">
+      {/* As in Figma, the panel sits on the lower part of the map and is only as tall as its content. */}
+      <View className="absolute inset-x-0 bottom-0 rounded-t-surface bg-surface px-6 pb-safe-offset-6 pt-8 shadow-sheet">
         {copy}
-        <View className="mt-auto gap-3 pt-8">{actions}</View>
+        <View className="gap-3 pt-8">{actions}</View>
       </View>
     </View>
   );
