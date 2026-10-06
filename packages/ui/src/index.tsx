@@ -56,3 +56,5 @@ export { default as Login } from "./screens/onboarding/Login";
 export { default as Verify } from "./screens/onboarding/Verify";
 export { default as DriverVerify } from "./screens/onboarding/DriverVerify";
 export { default as HomePlaceholder } from "./screens/states/HomePlaceholder";
+export * from "./components/Map";
+export * from "./components/Map.types";

@@ -9,3 +9,4 @@ export * from "./copy";
 export * from "./schemas";
 export type { Database, Json } from "./database.types";
 export * from "./search";
+export * from "./trip";

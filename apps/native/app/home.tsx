@@ -1,1 +1,1 @@
-export { default } from "@repo/ui/src/screens/states/HomePlaceholder";
+export { default } from "@repo/ui/src/screens/commuter/Home";

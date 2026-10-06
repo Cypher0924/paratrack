@@ -49,6 +49,7 @@ module.exports = {
         caption: font(12, 16, 0),
         "map-label": font(11, 14, 0),
         "mono-md": font(14, 20, 0),
+        "display-xl": font(52, 56, -1.56),
       },
       // Only 400 and 500 exist. `font-sans-medium` is 500 (see the app tailwind configs for the family).
       // `display` is Geist Medium: screen headings and the welcome headline only.

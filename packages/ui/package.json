@@ -17,13 +17,16 @@
     "@react-native-community/netinfo": "11.5.2",
     "@repo/core": "*",
     "@supabase/supabase-js": "^2.117.2",
+    "@vis.gl/react-google-maps": "^1.10.1",
     "clsx": "^2.1.1",
     "expo-constants": "~55.0.7",
     "expo-location": "~55.1.14",
     "expo-notifications": "~55.0.27",
     "phosphor-react-native": "^3.0.6",
     "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-native": "0.83.10",
+    "react-native-maps": "1.27.2",
     "react-native-svg": "15.15.3",
     "tailwind-merge": "^3.7.0"
   }
