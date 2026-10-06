@@ -37,7 +37,11 @@ let announcementId = 0;
 
 const push = vi.fn(async () => {});
 const deps = { push };
-const notifications = () => ok(admin.from("notifications").select("kind, title, body, data").eq("user_id", userId).order("id"));
+// Other test files insert announcements, and the trigger notifies every user, so skip those rows.
+const notifications = async () =>
+  (await ok(admin.from("notifications").select("kind, title, body, data").eq("user_id", userId).order("id"))).filter(
+    (r) => !(r.data as { announcementId?: number }).announcementId,
+  );
 const reset = async () => {
   push.mockClear();
   await admin.from("notifications").delete().eq("user_id", userId);
@@ -190,7 +194,7 @@ describe("announcement trigger", () => {
     await reset();
     const a = await ok(admin.from("announcements").insert({ route_id: routeId, title: "Detour", body: "Road work on Rizal Ave." }).select("id").single());
     announcementId = a.id;
-    const rows = await notifications();
+    const rows = (await ok(admin.from("notifications").select("kind, title, body").eq("user_id", userId).eq("data->>announcementId", String(a.id))));
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ kind: "service", title: "Detour", body: "Road work on Rizal Ave." });
   });
