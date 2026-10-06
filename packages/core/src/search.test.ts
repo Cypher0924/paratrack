@@ -10,9 +10,9 @@ const rs = [
 ];
 
 describe("routesServing", () => {
-  it("keeps routes where the destination comes after the origin", () => {
-    expect(routesServing(rs, "x", "y")).toEqual(["a"]);
-    expect(routesServing(rs, "y", "x")).toEqual(["b"]);
+  it("keeps every route serving both stops, since routes are loops", () => {
+    expect(routesServing(rs, "x", "y")).toEqual(["a", "b"]);
+    expect(routesServing(rs, "y", "x")).toEqual(["a", "b"]);
   });
   it("skips routes missing a stop and same-stop searches", () => {
     expect(routesServing(rs, "x", "z")).toEqual([]);

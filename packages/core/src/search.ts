@@ -1,16 +1,11 @@
 export type RouteStopRef = { routeId: string; seq: number; stopId: string };
 
-/** Route ids that reach `toStopId` after `fromStopId`, in stop order. */
+/** Route ids serving both stops. Routes are loops, so either stop order is a valid ride. */
 export const routesServing = (routeStops: readonly RouteStopRef[], fromStopId: string, toStopId: string): string[] => {
   if (fromStopId === toStopId) return [];
-  const seqOf = (routeId: string, stopId: string) =>
-    routeStops.find((r) => r.routeId === routeId && r.stopId === stopId)?.seq;
+  const has = (routeId: string, stopId: string) => routeStops.some((r) => r.routeId === routeId && r.stopId === stopId);
   const ids = Array.from(new Set(routeStops.map((r) => r.routeId)));
-  return ids.filter((id) => {
-    const from = seqOf(id, fromStopId);
-    const to = seqOf(id, toStopId);
-    return from !== undefined && to !== undefined && from < to;
-  });
+  return ids.filter((id) => has(id, fromStopId) && has(id, toStopId));
 };
 
 const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" });

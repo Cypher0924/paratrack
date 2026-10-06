@@ -39,7 +39,7 @@ export const computeSearch = (
     let fromRs: RouteStop | undefined;
     if (fromId) fromRs = onRoute.find((rs) => rs.stop.id === fromId);
     else {
-      const before = onRoute.filter((rs) => rs.seq < dest.seq);
+      const before = onRoute.filter((rs) => rs.stop.id !== toStopId);
       const near = nearestStop("position" in from ? from.position : { lat: 0, lng: 0 }, before.map((rs) => ({ ...rs.stop, rs })));
       fromRs = near?.stop.rs;
     }
