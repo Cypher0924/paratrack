@@ -108,7 +108,7 @@ export function ScrollSheet({
   );
 }
 
-/** Floating left panel on wide screens: 400 px wide, 16 px from the top, left and bottom. */
+/** Floating left panel on wide screens: 400 px wide, 16 px from the top and left, 40 px from the bottom so the Google logo stays visible. */
 const PANEL = 400;
 const GUTTER = 16;
 
@@ -141,7 +141,7 @@ export function MapPanel({
   const wide = useIsWide();
   if (wide) {
     return (
-      <View pointerEvents="box-none" className="absolute bottom-4 left-4 top-4 w-[400px]">
+      <View pointerEvents="box-none" className="absolute bottom-[40px] left-4 top-4 w-[400px]">
         <View className="flex-1 overflow-hidden rounded-panel bg-surface shadow-sheet">
           {top}
           <ScrollView className="flex-1" contentContainerClassName="gap-4 px-4 pb-4 pt-3" showsVerticalScrollIndicator={false}>
