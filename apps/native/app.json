@@ -2,7 +2,7 @@
   "expo": {
     "name": "ParaTrack",
     "slug": "paratrack",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scheme": "paratrack",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -56,6 +56,12 @@
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true,
           "isIosBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "hidden": true
         }
       ]
     ],
