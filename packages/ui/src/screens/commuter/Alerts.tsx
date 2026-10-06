@@ -42,7 +42,7 @@ function Group({ title, items, now }: { title: string; items: AppNotification[];
 /** Figma 13 Alerts. */
 export default function Alerts() {
   const nav = useNav();
-  const ready = useSessionGuard("in");
+  const { ready } = useSessionGuard("in");
   const { notifications, unreadCount, markAllRead } = useNotifications();
   const [filter, setFilter] = useState<(typeof filters)[number]["value"]>("all");
   const now = new Date();
@@ -55,7 +55,7 @@ export default function Alerts() {
     <View className="flex-1 bg-background pt-safe">
       <ScrollView contentContainerClassName="gap-4 px-4 pb-6 pt-4">
         <View className="flex-row items-center gap-3">
-          <Text role="heading" className="flex-1 font-sans-medium text-[28px] leading-[32px] text-foreground">
+          <Text role="heading" className="flex-1 font-display text-title-lg text-foreground">
             Alerts
           </Text>
           {unreadCount > 0 && <Button variant="ghost" size="md" label="Mark all as read" onPress={() => markAllRead()} />}

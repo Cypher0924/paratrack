@@ -7,11 +7,13 @@ import { SettingsRow } from "../../components/SettingsRow";
 import { useStops } from "../../data/hooks";
 import { setOriginStop } from "../../data/origin";
 import { useNav } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import colors from "../../theme/colors";
 
 /** Stop picker: choosing a stop sets the origin, "Use my location" clears it. */
 export default function Stops() {
   const nav = useNav();
+  useSessionGuard("in");
   const { data: stops } = useStops();
   const [q, setQ] = useState("");
   const list = useMemo(() => {

@@ -9,6 +9,7 @@ import { SegmentedControl } from "../../components/SegmentedControl";
 import { vehicleKinds } from "../../components/VehicleMarker";
 import { useFare, useProfile, useRoutes, useStops } from "../../data/hooks";
 import { useNav, useQuery } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import colors from "../../theme/colors";
 
 const options = [
@@ -24,6 +25,7 @@ const fleet = { ejeep: "modern e-jeeps", jeep: "jeepneys", bus: "buses", shuttle
 /** Figma 10 Fare breakdown. The fare type is saved to the profile. */
 export default function Fare() {
   const nav = useNav();
+  useSessionGuard("in");
   const q = useQuery();
   const routeId = q.route ?? "";
   const fromId = q.from ?? "";

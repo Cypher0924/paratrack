@@ -44,7 +44,7 @@ const Heading = ({ children }: { children: string }) => (
 /** Figma 14 Account. */
 export default function Account() {
   const nav = useNav();
-  const ready = useSessionGuard("in");
+  const { ready } = useSessionGuard("in");
   const { user, signOut } = useSession();
   const { profile, update } = useProfile();
   const { unreadCount } = useNotifications();
@@ -57,7 +57,7 @@ export default function Account() {
   return (
     <View className="flex-1 bg-background pt-safe">
       <ScrollView contentContainerClassName="gap-5 px-4 pb-6 pt-4">
-        <Text role="heading" className="font-sans-medium text-[28px] leading-[32px] text-foreground">
+        <Text role="heading" className="font-display text-title-lg text-foreground">
           Account
         </Text>
         <View className="flex-row items-center gap-3">

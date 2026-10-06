@@ -11,11 +11,13 @@ import { useOriginStop } from "../../data/origin";
 import { computeSearch } from "../../data/search";
 import { useLocation } from "../../lib/location";
 import { useNav } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import colors from "../../theme/colors";
 
 /** Figma 07 Search: From (picked stop or your location), To (stop search), routes serving both in order. */
 export default function Search() {
   const nav = useNav();
+  useSessionGuard("in");
   const { data: stops } = useStops();
   const { data: routes } = useRoutes();
   const { data: routeStops } = useAllRouteStops();
