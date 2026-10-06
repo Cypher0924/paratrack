@@ -7,3 +7,15 @@ html,
 body {
   height: 100%;
 }
+
+/* NativeWind reads safe-area insets from react-native-safe-area-context, which the web build stubs out,
+   so these classes would be 0. The browser knows the insets (viewport-fit=cover in the root layout). */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pb-safe-offset-6 {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+}

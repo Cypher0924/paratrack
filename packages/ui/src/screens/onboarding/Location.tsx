@@ -4,6 +4,7 @@ import { Button } from "../../components/Button";
 import { MapPreview } from "../../components/MapPreview";
 import { YouMarker } from "../../components/YouMarker";
 import { useNav } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { useIsWide } from "../../lib/responsive";
 import { OnboardingFrame } from "./OnboardingFrame";
 import { requestLocation } from "../../lib/location";
@@ -11,6 +12,8 @@ import { setOriginStop } from "../../data/origin";
 
 /** Figma 02 Location. No route line on this screen; the permission copy is the point. */
 export default function Location() {
+  // Signed-in users skip onboarding: commuters to /home, drivers to /driver.
+  useSessionGuard("out");
   const { push } = useNav();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
