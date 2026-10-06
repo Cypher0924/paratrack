@@ -1,6 +1,7 @@
 import { BusIcon } from "phosphor-react-native/src/icons/Bus";
 import { useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { Page } from "../../components/Page";
 import { groupByDay, timeAgo } from "@repo/core";
 import { AlertItem } from "../../components/AlertItem";
 import { Button } from "../../components/Button";
@@ -52,7 +53,7 @@ export default function Alerts() {
   );
   if (!ready) return null;
   return (
-    <View className="flex-1 bg-background pt-safe">
+    <Page className="pt-safe">
       <ScrollView contentContainerClassName="gap-4 px-4 pb-6 pt-4">
         <View className="flex-row items-center gap-3">
           <Text role="heading" className="flex-1 font-display text-title-lg text-foreground">
@@ -77,6 +78,6 @@ export default function Alerts() {
         )}
       </ScrollView>
       <TabBar active="alerts" unread={unreadCount} onSelect={(t) => t !== "alerts" && nav.replace(tabPath[t])} />
-    </View>
+    </Page>
   );
 }

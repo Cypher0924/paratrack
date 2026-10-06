@@ -15,7 +15,7 @@ import { TransitMap } from "../../components/Map";
 import { Plate } from "../../components/Plate";
 import { SettingsRow } from "../../components/SettingsRow";
 import { vehicleKinds } from "../../components/VehicleMarker";
-import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, seatBadge, TopOverlay, useNow, useOrigin, useSheetHeights, useTripContext } from "./shared";
+import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, MapPanel, seatBadge, useNow, useOrigin, useMapInsets, useSheetHeights, useTripContext } from "./shared";
 
 /** Figma 11 Tracking, with 23 Stopped sharing when the vehicle goes offline. */
 export default function Trip() {
@@ -29,6 +29,7 @@ export default function Trip() {
   const [keepWaiting, setKeepWaiting] = useState(false);
   const [busy, setBusy] = useState(false);
   const heights = useSheetHeights(150, 440);
+  const insets = useMapInsets(heights[1] + 16);
 
   useEffect(() => {
     if (!loaded) return;
@@ -70,13 +71,9 @@ export default function Trip() {
         stops={boardStop ? [{ id: boardStop.stop.id, ...pointOf(boardStop.stop), name: boardStop.stop.name ?? "Stop", kind: "yours" }] : []}
         vehicles={shown ? [shown] : []}
         you={origin.position}
-        bottomInset={heights[1] + 16}
+        {...insets}
       />
-      <TopOverlay>
-        <BackButton label="Back" />
-      </TopOverlay>
-      <View className="absolute inset-x-0 bottom-0">
-        <ScrollSheet heights={heights}>
+      <MapPanel top={<BackButton label="Back" />} heights={heights}>
           {stopped && !keepWaiting && vehicle ? (
             <>
               <Banner
@@ -131,8 +128,7 @@ export default function Trip() {
               </View>
             </>
           )}
-        </ScrollSheet>
-      </View>
+      </MapPanel>
     </View>
   );
 }

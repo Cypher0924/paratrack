@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { AppBar } from "../../components/AppBar";
 import { Button } from "../../components/Button";
+import { OnboardingFrame } from "./OnboardingFrame";
 import { useNav, useQuery } from "../../lib/nav";
 import { useSession } from "../../data/hooks";
 import { parsePhMobile } from "@repo/core";
@@ -48,9 +49,9 @@ export default function Login() {
   };
 
   return (
-    <View className="h-full w-full flex-1 bg-background">
+    <OnboardingFrame>
       <AppBar title="" onBack={() => replace("/")} backLabel="Back to welcome" />
-      <View className="flex-1 gap-6 px-6 pt-4">
+      <View className="flex-1 gap-6 px-6 pt-4 md:px-7">
         <View className="gap-2">
           <Text role="heading" className="font-display text-title-lg text-foreground">Add your mobile number</Text>
           <Text className="font-sans text-body-md text-text-secondary">
@@ -116,9 +117,9 @@ export default function Login() {
         </Text>
       </View>
 
-      <View className="px-6 pb-[34px]">
+      <View className="px-6 pb-[34px] md:px-7 md:pb-7 md:pt-8">
         <Button label="Send code" loading={sending} onPress={send} />
       </View>
-    </View>
+    </OnboardingFrame>
   );
 }
