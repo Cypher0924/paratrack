@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { Text, View } from "react-native";
 import { PersonSimpleWalkIcon } from "phosphor-react-native/src/icons/PersonSimpleWalk";
 import { useLiveVehicles } from "../../data/hooks";
-import { useNav, useParams } from "../../lib/nav";
+import { useNav, useParams, useQuery } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
 import { ArrivalRow } from "../../components/ArrivalRow";
 import { Badge } from "../../components/Badge";
@@ -18,6 +18,9 @@ export default function RouteDetail() {
   const { ready } = useSessionGuard("in");
   const { id } = useParams<{ id: string }>();
   const nav = useNav();
+  // Set when the commuter came from Search, so Track uses their destination.
+  const { to } = useQuery();
+  const vehicleUrl = (vehicleId: string) => `/vehicle/${vehicleId}${to ? `?to=${to}` : ""}`;
   const { route, stops } = useRouteWithStops(id);
   const origin = useOrigin();
   const { vehicles, status } = useLiveVehicles();
@@ -48,7 +51,7 @@ export default function RouteDetail() {
     [stops, yours],
   );
   const mapVehicles = useMemo(
-    () => rows.map((r) => marker(r.v, route, { onPress: () => nav.push(`/vehicle/${r.v.id}`) })).filter((v): v is MapVehicleItem => !!v),
+    () => rows.map((r) => marker(r.v, route, { onPress: () => nav.push(vehicleUrl(r.v.id)) })).filter((v): v is MapVehicleItem => !!v),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [rows, route],
   );
@@ -103,7 +106,7 @@ export default function RouteDetail() {
                     badge={seatBadge(seat)}
                     eta={eta === null ? "" : etaLabel(eta)}
                     time={eta === null ? "" : clockTime(new Date(now.getTime() + eta * 1000))}
-                    onPress={() => nav.push(`/vehicle/${v.id}`)}
+                    onPress={() => nav.push(vehicleUrl(v.id))}
                   />
                 );
               })}

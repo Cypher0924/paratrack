@@ -134,7 +134,7 @@ export default function Search() {
                 }
                 eta={r.next ? `${Math.max(1, Math.round(r.next.etaSec / 60))} min` : "--"}
                 time={r.next ? clockTime(r.next.pickup) : ""}
-                onPress={() => nav.push(`/route/${r.route.id}`)}
+                onPress={() => nav.push(`/route/${r.route.id}?to=${toId}`)}
               />
             ))}
             {results && results.length > 0 && (
