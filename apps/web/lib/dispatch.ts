@@ -80,7 +80,7 @@ export async function afterPing(vehicleId: string, deps: DispatchDeps = {}): Pro
   const { data: profiles } = await c.admin
     .from("profiles")
     .select("id, arrival_alerts, alert_minutes")
-    .in("id", [...new Set(trips.map((t) => t.user_id))]);
+    .in("id", Array.from(new Set(trips.map((t) => t.user_id))));
   const prof = new Map((profiles ?? []).map((p) => [p.id, p]));
   const lengthM = v.route.length_m;
   const progressM = v.live.progress_m;

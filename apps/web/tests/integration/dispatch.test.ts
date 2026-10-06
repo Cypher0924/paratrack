@@ -159,7 +159,7 @@ describe("afterSeats", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].kind).toBe("service");
     expect(rows[0].title).toBe("Test jeep 1 is full");
-    expect(rows[0].body).toContain("next jeep with seats reaches Dispatch middle");
+    expect(rows[0].body).toContain("with seats reaches Dispatch middle in 2 min");
     expect(push).toHaveBeenCalledTimes(1);
     await afterSeats(vehicleId, true, deps);
     expect(await notifications()).toHaveLength(1);

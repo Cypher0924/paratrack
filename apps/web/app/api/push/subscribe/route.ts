@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const parsed = pushSubscriptionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return bad("invalid body");
   const b = parsed.data;
-  const row =
+  const row: Database["public"]["Tables"]["push_subscriptions"]["Insert"] =
     b.kind === "web"
       ? { user_id: c.userId, kind: "web", token: b.endpoint, keys: b.keys }
       : { user_id: c.userId, kind: "expo", token: b.token, keys: null };
