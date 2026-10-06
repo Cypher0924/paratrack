@@ -71,7 +71,7 @@ export default function Verify() {
   return (
     <OnboardingFrame>
       <AppBar title="" onBack={() => replace(`/login${role === "driver" ? "?role=driver" : ""}`)} backLabel="Back to the mobile number" />
-      <View className="flex-1 gap-6 px-6 pt-4 md:px-7">
+      <View className="flex-1 gap-6 px-6 pt-4 md:px-0">
         <View className="gap-2">
           <Text role="heading" className="font-display text-title-lg text-foreground">Enter the 6-digit code</Text>
           <Text className="font-sans text-body-md text-text-secondary">
@@ -134,7 +134,7 @@ export default function Verify() {
         )}
       </View>
 
-      <View className="px-6 pb-[34px] md:px-7 md:pb-7 md:pt-8">
+      <View className="px-6 pb-[34px] md:px-0 md:pb-0 md:pt-8">
         <Button label="Verify number" loading={checking} disabled={code.length !== 6} onPress={() => verify()} />
       </View>
     </OnboardingFrame>

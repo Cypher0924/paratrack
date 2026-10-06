@@ -58,7 +58,7 @@ export default function Location() {
   if (wide) {
     return (
       <OnboardingFrame>
-        <View className="p-7">{panel}</View>
+        {panel}
       </OnboardingFrame>
     );
   }
