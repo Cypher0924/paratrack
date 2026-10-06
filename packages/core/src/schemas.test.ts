@@ -15,11 +15,28 @@ describe("seatsSchema", () => {
 });
 
 describe("pushSubscriptionSchema", () => {
-  const web = { kind: "web", endpoint: "https://push.example/abc", keys: { p256dh: "k", auth: "a" } };
+  const web = { kind: "web", endpoint: "https://fcm.googleapis.com/fcm/send/abc", keys: { p256dh: "k", auth: "a" } };
   it("accepts web", () => expect(pushSubscriptionSchema.safeParse(web).success).toBe(true));
   it("rejects http endpoint", () => expect(pushSubscriptionSchema.safeParse({ ...web, endpoint: "http://push.example/abc" }).success).toBe(false));
   it("accepts expo", () => expect(pushSubscriptionSchema.safeParse({ kind: "expo", token: "ExponentPushToken[abc]" }).success).toBe(true));
   it.each(["abc", "ExpoPushToken[abc]", "ExponentPushToken[]"])("rejects expo token %s", (token) =>
     expect(pushSubscriptionSchema.safeParse({ kind: "expo", token }).success).toBe(false),
   );
+});
+
+describe("pushSubscriptionSchema endpoint", () => {
+  const web = (endpoint: string) => ({ kind: "web", endpoint, keys: { p256dh: "p", auth: "a" } });
+  it("accepts the browser push services", () => {
+    for (const e of [
+      "https://fcm.googleapis.com/fcm/send/abc",
+      "https://updates.push.services.mozilla.com/wpush/v2/abc",
+      "https://web.push.apple.com/QGuQyavXuto",
+      "https://wns2-par02p.notify.windows.com/w/?token=abc",
+    ])
+      expect(pushSubscriptionSchema.safeParse(web(e)).success).toBe(true);
+  });
+  it("rejects any other host, so the server never posts to an address a user picked", () => {
+    for (const e of ["https://evil.example/hook", "https://fcm.googleapis.com.evil.example/x", "http://fcm.googleapis.com/x"])
+      expect(pushSubscriptionSchema.safeParse(web(e)).success).toBe(false);
+  });
 });

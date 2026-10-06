@@ -23,7 +23,7 @@ const call = (fn: typeof POST, body: unknown, auth?: string) =>
   );
 const rows = async () => (await admin.from("push_subscriptions").select("kind, token, keys").eq("user_id", userId)).data ?? [];
 
-const web = { kind: "web", endpoint: "https://push.example.com/abc", keys: { p256dh: "p", auth: "a" } };
+const web = { kind: "web", endpoint: "https://fcm.googleapis.com/fcm/send/abc", keys: { p256dh: "p", auth: "a" } };
 const expo = { kind: "expo", token: "ExponentPushToken[abc123]" };
 
 beforeAll(async () => {
