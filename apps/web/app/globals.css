@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* The shared screens fill the viewport, so the document has to as well. */
+html,
+body {
+  height: 100%;
+}
