@@ -35,7 +35,18 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      ["expo-notifications", { "icon": "./assets/notification-icon.png", "color": "#1565c0" }]
+      ["expo-notifications", { "icon": "./assets/notification-icon.png", "color": "#1565c0" }],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "ParaTrack shares your location with riders while your shift is online.",
+          "locationAlwaysPermission": "ParaTrack shares your location with riders while your shift is online.",
+          "locationWhenInUsePermission": "ParaTrack uses your location to show nearby vehicles.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true
+        }
+      ]
     ],
     "extra": {
       "eas": {

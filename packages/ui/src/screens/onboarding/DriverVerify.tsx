@@ -89,10 +89,7 @@ export default function DriverVerify() {
         {vehicle ? (
           <Button
             label="Go to my route"
-            onPress={() => {
-              // Phase 7 builds the driver home. Until then the shared shell is the commuter home.
-              push("/home");
-            }}
+            onPress={() => push("/driver")}
           />
         ) : (
           <Button
