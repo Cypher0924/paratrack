@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNav } from "../lib/nav";
 import { useSession } from "../data/hooks";
+import { useAppMode } from "../data/mode";
 
 /**
  * Routing guard for the onboarding flow, from the plan's route map: signed-out users go to `/`,
@@ -12,12 +13,13 @@ import { useSession } from "../data/hooks";
 export function useSessionGuard(only: "in" | "out") {
   const { session, loading } = useSession();
   const { replace, push } = useNav();
+  const mode = useAppMode();
 
   useEffect(() => {
     if (loading) return;
-    if (only === "out" && session) replace("/home");
+    if (only === "out" && session) replace(mode === "driver" ? "/driver" : "/home");
     if (only === "in" && !session) replace("/");
-  }, [loading, only, replace, session]);
+  }, [loading, only, replace, session, mode]);
 
   return { ready: !loading, signedIn: !!session, go: { replace, push } };
 }
