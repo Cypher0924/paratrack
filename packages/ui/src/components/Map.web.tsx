@@ -3,6 +3,8 @@ import { AdvancedMarker, AdvancedMarkerAnchorPoint, APIProvider, Map as GoogleMa
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { CrosshairIcon } from "phosphor-react-native/src/icons/Crosshair";
+import { MinusIcon } from "phosphor-react-native/src/icons/Minus";
+import { PlusIcon } from "phosphor-react-native/src/icons/Plus";
 import colors from "../theme/colors";
 import { IconButton } from "./IconButton";
 import { MapCallout } from "./MapCallout";
@@ -66,7 +68,7 @@ function RoutePath({ path }: { path: LatLng[] }) {
 }
 
 /** Moves the camera: refits when the points change, otherwise centers once. Hands the map up for the recenter button. */
-function Camera({ fit, center, leftInset = 0, onMap }: Pick<MapProps, "fit" | "center" | "leftInset"> & { onMap: (m: google.maps.Map | null) => void }) {
+function Camera({ fit, center, onMap }: Pick<MapProps, "fit" | "center"> & { onMap: (m: google.maps.Map | null) => void }) {
   const map = useMap();
   useEffect(() => onMap(map), [map, onMap]);
   const fitKey = (fit ?? []).map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`).join("|");
@@ -75,12 +77,11 @@ function Camera({ fit, center, leftInset = 0, onMap }: Pick<MapProps, "fit" | "c
     if (fit.length === 1) {
       map.setCenter(fit[0]);
       map.setZoom(16);
-      if (leftInset) map.panBy(-leftInset / 2, 0);
       return;
     }
     const b = new google.maps.LatLngBounds();
     fit.forEach((p) => b.extend(p));
-    map.fitBounds(b, { top: 100, left: 40 + leftInset, right: 40, bottom: 40 });
+    map.fitBounds(b, { top: 100, left: 40, right: 40, bottom: 40 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, fitKey]);
   const centered = useRef(false);
@@ -89,20 +90,19 @@ function Camera({ fit, center, leftInset = 0, onMap }: Pick<MapProps, "fit" | "c
     centered.current = true;
     map.setCenter(center);
     map.setZoom(16);
-    if (leftInset) map.panBy(-leftInset / 2, 0);
   }, [map, center, fit]);
   return null;
 }
 
 /** Google Maps with the default style. Markers are the shared RN views inside Advanced Markers. */
-export function TransitMap({ center, fit, routes = [], vehicles = [], stops = [], you, bottomInset = 0, leftInset = 0 }: MapProps) {
+export function TransitMap({ center, fit, routes = [], vehicles = [], stops = [], you, bottomInset = 0, leftInset = 0, noZoom }: MapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   if (!KEY || !MAP_ID) return <MapPlaceholder />;
   const start = center ?? fit?.[0] ?? DEFAULT_CENTER;
   return (
     <View className="absolute inset-0 bg-surface-muted">
       {/* The map ends at the sheet's top edge, so the Google logo and credit stay visible. */}
-      <View className="absolute inset-x-0 top-0" style={{ bottom: bottomInset }}>
+      <View className="absolute inset-x-0 top-0" style={{ bottom: bottomInset, left: leftInset }}>
         <APIProvider apiKey={KEY}>
           <GoogleMap
             mapId={MAP_ID}
@@ -113,7 +113,7 @@ export function TransitMap({ center, fit, routes = [], vehicles = [], stops = []
             gestureHandling="greedy"
             style={{ width: "100%", height: "100%" }}
           >
-            <Camera fit={fit} center={center} leftInset={leftInset} onMap={setMap} />
+            <Camera fit={fit} center={center} onMap={setMap} />
             {routes.map((r) => (
               <RoutePath key={r.id} path={r.path} />
             ))}
@@ -132,8 +132,14 @@ export function TransitMap({ center, fit, routes = [], vehicles = [], stops = []
             ))}
           </GoogleMap>
         </APIProvider>
-        {center && (
-          <View className="absolute bottom-[16px] right-[16px]">
+        <View className="absolute bottom-[16px] right-[16px] gap-2">
+          {leftInset > 0 && !noZoom && (
+            <>
+              <IconButton variant="surface" icon={PlusIcon} label="Zoom in" onPress={() => map?.setZoom((map.getZoom() ?? 15) + 1)} />
+              <IconButton variant="surface" icon={MinusIcon} label="Zoom out" onPress={() => map?.setZoom((map.getZoom() ?? 15) - 1)} />
+            </>
+          )}
+          {center && (
             <IconButton
               variant="surface"
               icon={CrosshairIcon}
@@ -143,8 +149,8 @@ export function TransitMap({ center, fit, routes = [], vehicles = [], stops = []
                 map?.setZoom(16);
               }}
             />
-          </View>
-        )}
+          )}
+        </View>
       </View>
     </View>
   );

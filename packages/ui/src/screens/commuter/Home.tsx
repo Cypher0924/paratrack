@@ -114,7 +114,7 @@ export default function Home() {
       />
       <MapPanel
         top={
-          <View className="px-4 pt-[12px]">
+          <View className="px-4 pt-[12px] md:px-6 md:pt-6">
             <SearchBar onPress={() => nav.push("/search")} />
           </View>
         }

@@ -2,7 +2,7 @@ import { MapPinIcon } from "phosphor-react-native/src/icons/MapPin";
 import { CrosshairIcon } from "phosphor-react-native/src/icons/Crosshair";
 import { useMemo, useState } from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
-import { Page } from "../../components/Page";
+import { CommuterPage } from "../../components/CommuterPage";
 import { AppBar } from "../../components/AppBar";
 import { SettingsRow } from "../../components/SettingsRow";
 import { useStops } from "../../data/hooks";
@@ -26,9 +26,9 @@ export default function Stops() {
     nav.back();
   };
   return (
-    <Page className="pt-safe">
+    <CommuterPage className="pt-safe">
       <AppBar title="Choose your stop" backLabel="Back" onBack={() => nav.back()} />
-      <View className="px-4 pb-2 pt-2">
+      <View className="px-4 pb-2 pt-2 md:px-6">
         <View className="h-control-md flex-row items-center gap-2 rounded-control border border-border-strong bg-surface px-4">
           <MapPinIcon size={20} color={colors["text-muted"]} />
           <TextInput
@@ -40,13 +40,13 @@ export default function Stops() {
           />
         </View>
       </View>
-      <ScrollView className="flex-1 px-4">
+      <ScrollView className="flex-1 px-4 md:px-6">
         <SettingsRow title="Use my location" icon={CrosshairIcon} trailing="none" onPress={() => pick(null)} />
         {list.map((s) => (
           <SettingsRow key={s.id} title={s.name!} icon={MapPinIcon} trailing="none" onPress={() => pick(s.id)} />
         ))}
         {stops && list.length === 0 && <Text className="py-4 font-sans text-body-sm text-text-muted">No stops match.</Text>}
       </ScrollView>
-    </Page>
+    </CommuterPage>
   );
 }

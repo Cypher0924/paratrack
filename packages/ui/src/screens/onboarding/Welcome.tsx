@@ -79,9 +79,9 @@ export default function Welcome() {
   const { push } = useNav();
   const wide = useIsWide();
   const copy = (
-    <View className="gap-4">
-      <Logo height={36} />
-      <Text role="heading" className="font-display text-display-lg text-foreground">Know where your ride is</Text>
+    <View className="gap-4 md:gap-6">
+      {!wide && <Logo height={36} />}
+      <Text role="heading" className="font-display text-display-lg text-foreground md:text-display-xl">{wide ? "Know where\nyour ride is" : "Know where your ride is"}</Text>
       <Text className="font-sans text-body-md text-text-secondary">
         Live shuttles, e-jeeps, and buses near you, with seats left and the fare before you board.
       </Text>
@@ -97,10 +97,8 @@ export default function Welcome() {
   if (wide) {
     return (
       <OnboardingFrame>
-        <View className="p-7">
-          {copy}
-          <View className="gap-3 pt-8">{actions}</View>
-        </View>
+        {copy}
+        <View className="flex-row gap-3 pt-6">{actions}</View>
       </OnboardingFrame>
     );
   }

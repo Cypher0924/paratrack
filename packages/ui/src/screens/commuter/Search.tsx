@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "phosphor-react-native/src/icons/ArrowLeft";
 import { MapPinIcon } from "phosphor-react-native/src/icons/MapPin";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import { Page } from "../../components/Page";
+import { CommuterPage } from "../../components/CommuterPage";
 import { clockTime, formatPeso } from "@repo/core";
 import { ArrivalRow } from "../../components/ArrivalRow";
 import { IconButton } from "../../components/IconButton";
@@ -46,8 +46,8 @@ export default function Search() {
   }, [origin, position, toId, routes, routeStops, vehicles, profile?.fare_type]);
 
   return (
-    <Page>
-    <ScrollView className="flex-1" contentContainerClassName="pb-8 pt-safe">
+    <CommuterPage routeIds={results?.length ? results.map((r) => r.route.id) : undefined}>
+    <ScrollView className="flex-1" contentContainerClassName="pb-8 pt-safe md:px-6 md:pt-4">
       <View className="flex-row items-center gap-2 pl-1 pr-2 pt-2">
         <IconButton icon={ArrowLeftIcon} label="Back" onPress={() => nav.back()} />
         <View className="flex-1 overflow-hidden rounded-control border border-border-strong bg-surface">
@@ -89,7 +89,7 @@ export default function Search() {
         <View className="h-control-md w-control-md" />
       </View>
 
-      <View className="px-4 pt-4">
+      <View className="px-4 pt-4 md:px-0">
         {matches.map((s) => (
           <SettingsRow
             key={s.id}
@@ -146,6 +146,6 @@ export default function Search() {
         )}
       </View>
     </ScrollView>
-    </Page>
+    </CommuterPage>
   );
 }

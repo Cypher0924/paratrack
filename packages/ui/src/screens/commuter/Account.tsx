@@ -6,11 +6,10 @@ import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { SteeringWheelIcon } from "phosphor-react-native/src/icons/SteeringWheel";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { Page } from "../../components/Page";
+import { CommuterPage } from "../../components/CommuterPage";
 import { Avatar } from "../../components/Avatar";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { SettingsRow } from "../../components/SettingsRow";
-import { TabBar } from "../../components/TabBar";
 import { useNotifications, useProfile, useRoutes, useSession, useStops } from "../../data/hooks";
 import { useSaved } from "../../data/saved";
 import { useNav } from "../../lib/nav";
@@ -18,7 +17,6 @@ import { usePushOnTap } from "../../lib/push-toggle";
 import { useSessionGuard } from "../../lib/session";
 import { AddToHomeScreenHint } from "../../components/AddToHomeScreenHint";
 import colors from "../../theme/colors";
-import { tabPath } from "./tabs";
 
 const fareOptions = [
   { value: "regular", label: "Regular" },
@@ -59,8 +57,8 @@ export default function Account() {
   const fareType = profile?.fare_type ?? "regular";
   const name = profile?.display_name || "Your account";
   return (
-    <Page className="pt-safe">
-      <ScrollView contentContainerClassName="gap-5 px-4 pb-6 pt-4">
+    <CommuterPage tab="account" unread={unreadCount} className="pt-safe">
+      <ScrollView contentContainerClassName="gap-5 px-4 pb-6 pt-4 md:px-6 md:pt-6">
         <Text role="heading" className="font-display text-title-lg text-foreground">
           Account
         </Text>
@@ -136,7 +134,6 @@ export default function Account() {
           </Pressable>
         </View>
       </ScrollView>
-      <TabBar active="account" unread={unreadCount} onSelect={(t) => t !== "account" && nav.replace(tabPath[t])} />
-    </Page>
+    </CommuterPage>
   );
 }

@@ -9,6 +9,7 @@ import type { LiveVehicle, Route, Stop } from "../../data/types";
 import { useLocation } from "../../lib/location";
 import { useNav } from "../../lib/nav";
 import { useIsWide } from "../../lib/responsive";
+import { DesktopShell, SHELL } from "../../components/DesktopShell";
 import { IconButton } from "../../components/IconButton";
 import type { LatLng, MapVehicleItem } from "../../components/Map.types";
 import { Sheet } from "../../components/Sheet";
@@ -108,20 +109,16 @@ export function ScrollSheet({
   );
 }
 
-/** Floating left panel on wide screens: 400 px wide, 16 px from the top and left, 40 px from the bottom so the Google logo stays visible. */
-const PANEL = 400;
-const GUTTER = 16;
-
-/** Map insets for the layout: the sheet covers the bottom on phones, the panel covers the left on wide screens. */
+/** Map insets for the layout: the sheet covers the bottom on phones, the rail and panel cover the left on wide screens. */
 export const useMapInsets = (bottom: number) => {
   const wide = useIsWide();
-  return wide ? { bottomInset: 0, leftInset: PANEL + GUTTER } : { bottomInset: bottom, leftInset: 0 };
+  return wide ? { bottomInset: 0, leftInset: SHELL } : { bottomInset: bottom, leftInset: 0 };
 };
 
 /**
  * Everything that sits over a map screen. On phones: `top` floats over the map and `children` go in
- * the bottom sheet, with `footer` (the tab bar) under it. From `md` up it is one scrolling panel,
- * with `top` first and `footer` last.
+ * the bottom sheet, with `footer` (the tab bar) under it. From `md` up it is the desktop panel next to
+ * the nav rail, `top` then the scrolling content. The rail replaces `footer`.
  */
 export function MapPanel({
   top,
@@ -141,15 +138,12 @@ export function MapPanel({
   const wide = useIsWide();
   if (wide) {
     return (
-      <View pointerEvents="box-none" className="absolute bottom-[40px] left-4 top-4 w-[400px]">
-        <View className="flex-1 overflow-hidden rounded-panel bg-surface shadow-sheet">
-          {top}
-          <ScrollView className="flex-1" contentContainerClassName="gap-4 px-4 pb-4 pt-3" showsVerticalScrollIndicator={false}>
-            {children}
-          </ScrollView>
-          {footer}
-        </View>
-      </View>
+      <DesktopShell active="map">
+        {top}
+        <ScrollView className="flex-1" contentContainerClassName="gap-4 px-6 pb-6 pt-4" showsVerticalScrollIndicator={false}>
+          {children}
+        </ScrollView>
+      </DesktopShell>
     );
   }
   return (
@@ -168,7 +162,7 @@ export function MapPanel({
 export function BackButton({ label = "Back" }: { label?: string }) {
   const nav = useNav();
   return (
-    <View className="ml-4 mt-[12px] self-start">
+    <View className="ml-4 mt-[12px] self-start md:ml-6 md:mt-6">
       <IconButton variant="surface" icon={ArrowLeftIcon} label={label} onPress={() => nav.back()} />
     </View>
   );

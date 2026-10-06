@@ -1,6 +1,6 @@
 import { InfoIcon } from "phosphor-react-native/src/icons/Info";
 import { ScrollView, Text, View } from "react-native";
-import { Page } from "../../components/Page";
+import { CommuterPage } from "../../components/CommuterPage";
 import { formatPeso } from "@repo/core";
 import type { FareType } from "@repo/core";
 import { AppBar } from "../../components/AppBar";
@@ -43,9 +43,9 @@ export default function Fare() {
   const percent = fareType === "regular" ? 0 : 20;
 
   return (
-    <Page className="pt-safe">
+    <CommuterPage className="pt-safe">
       <AppBar title="Fare breakdown" onBack={() => nav.back()} />
-      <ScrollView contentContainerClassName="gap-6 px-4 pb-8 pt-4">
+      <ScrollView contentContainerClassName="gap-6 px-4 pb-8 pt-4 md:px-6">
         {kind && route && (
           <View className="flex-row items-center gap-3">
             <kind.Icon size={24} color={colors.foreground} />
@@ -96,6 +96,6 @@ export default function Fare() {
           </View>
         )}
       </ScrollView>
-    </Page>
+    </CommuterPage>
   );
 }

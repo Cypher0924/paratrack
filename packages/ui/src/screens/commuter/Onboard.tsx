@@ -80,7 +80,7 @@ export default function Onboard() {
       />
       <MapPanel
         top={
-          <View className="px-4 pt-[12px]">
+          <View className="px-4 pt-[12px] md:px-6 md:pt-6">
           {vehicle && !online ? (
             <Banner tone="warning" icon={WarningIcon} title={`${vehicle.label} stopped sharing`} body="We cannot track it right now. Keep an eye out for your stop." />
           ) : nextIsYours && trip?.para_alert && para ? (
