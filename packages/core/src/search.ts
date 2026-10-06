@@ -5,7 +5,7 @@ export const routesServing = (routeStops: readonly RouteStopRef[], fromStopId: s
   if (fromStopId === toStopId) return [];
   const seqOf = (routeId: string, stopId: string) =>
     routeStops.find((r) => r.routeId === routeId && r.stopId === stopId)?.seq;
-  const ids = [...new Set(routeStops.map((r) => r.routeId))];
+  const ids = Array.from(new Set(routeStops.map((r) => r.routeId)));
   return ids.filter((id) => {
     const from = seqOf(id, fromStopId);
     const to = seqOf(id, toStopId);

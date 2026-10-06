@@ -29,7 +29,7 @@ export const computeSearch = (
   const fromId = "stopId" in from ? from.stopId : null;
   const ids = fromId
     ? routesServing(refs, fromId, toStopId)
-    : [...new Set(routeStops.map((rs) => rs.routeId))];
+    : Array.from(new Set(routeStops.map((rs) => rs.routeId)));
   const out: SearchResult[] = [];
   for (const routeId of ids) {
     const route = routes.find((r) => r.id === routeId);
