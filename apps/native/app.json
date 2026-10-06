@@ -13,9 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/d210b883-3945-4d7f-8057-2a7e2c530aa7"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -26,7 +29,9 @@
       },
       "package": "com.paratrack.app",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["android.permission.RECEIVE_BOOT_COMPLETED"]
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -35,7 +40,13 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      ["expo-notifications", { "icon": "./assets/notification-icon.png", "color": "#1565c0" }],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#1565c0"
+        }
+      ],
       [
         "expo-location",
         {
@@ -53,6 +64,9 @@
         "projectId": "d210b883-3945-4d7f-8057-2a7e2c530aa7"
       }
     },
-    "owner": "cyph0924s-team"
+    "owner": "cyph0924s-team",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    }
   }
 }
