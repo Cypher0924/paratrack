@@ -13,7 +13,9 @@ import { TabBar } from "../../components/TabBar";
 import { useNotifications, useProfile, useRoutes, useSession, useStops } from "../../data/hooks";
 import { useSaved } from "../../data/saved";
 import { useNav } from "../../lib/nav";
+import { usePushOnTap } from "../../lib/push-toggle";
 import { useSessionGuard } from "../../lib/session";
+import { AddToHomeScreenHint } from "../../components/AddToHomeScreenHint";
 import colors from "../../theme/colors";
 import { tabPath } from "./tabs";
 
@@ -46,6 +48,7 @@ export default function Account() {
   const nav = useNav();
   const { ready } = useSessionGuard("in");
   const { user, signOut } = useSession();
+  const pushOn = usePushOnTap();
   const { profile, update } = useProfile();
   const { unreadCount } = useNotifications();
   const { places, routeIds } = useSaved();
@@ -98,7 +101,10 @@ export default function Account() {
             icon={BellIcon}
             trailing="switch"
             checked={profile?.arrival_alerts ?? true}
-            onCheckedChange={(v) => update({ arrival_alerts: v })}
+            onCheckedChange={(v) => {
+              if (v) pushOn();
+              update({ arrival_alerts: v });
+            }}
           />
           <SettingsRow
             title="Service updates"
@@ -106,8 +112,12 @@ export default function Account() {
             icon={WarningIcon}
             trailing="switch"
             checked={profile?.service_updates ?? true}
-            onCheckedChange={(v) => update({ service_updates: v })}
+            onCheckedChange={(v) => {
+              if (v) pushOn();
+              update({ service_updates: v });
+            }}
           />
+          <AddToHomeScreenHint />
         </View>
 
         <View>

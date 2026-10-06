@@ -6,6 +6,7 @@ import { ReceiptIcon } from "phosphor-react-native/src/icons/Receipt";
 import { useFare, useLiveVehicles, useProfile, useTrips } from "../../data/hooks";
 import { useNav, useParams, useQuery } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
+import { usePushOnTap } from "../../lib/push-toggle";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
@@ -21,6 +22,7 @@ const fareLabel = { regular: "Regular", student: "Student, 20% off", senior: "Se
 /** Figma 09 Vehicle. `to` in the query is the stop the commuter gets off at. */
 export default function Vehicle() {
   const { ready } = useSessionGuard("in");
+  const pushOn = usePushOnTap();
   const { id } = useParams<{ id: string }>();
   const { to } = useQuery();
   const nav = useNav();
@@ -61,6 +63,7 @@ export default function Vehicle() {
 
   const track = async () => {
     if (!vehicle || !yours || !alight) return;
+    if (alertOn) pushOn();
     setBusy(true);
     setError(null);
     try {

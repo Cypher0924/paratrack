@@ -1,4 +1,4 @@
-import { ShareNetwork } from "phosphor-react-native";
+import { ShareNetworkIcon as ShareNetwork } from "phosphor-react-native/src/icons/ShareNetwork";
 import { useEffect, useState } from "react";
 import { needsInstall } from "../lib/push";
 import { Banner } from "./Banner";

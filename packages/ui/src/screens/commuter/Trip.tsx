@@ -6,6 +6,8 @@ import { ClockIcon } from "phosphor-react-native/src/icons/Clock";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { useNav, useParams } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
+import { usePushOnTap } from "../../lib/push-toggle";
+import { AddToHomeScreenHint } from "../../components/AddToHomeScreenHint";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
@@ -18,6 +20,7 @@ import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, 
 /** Figma 11 Tracking, with 23 Stopped sharing when the vehicle goes offline. */
 export default function Trip() {
   const { ready } = useSessionGuard("in");
+  const pushOn = usePushOnTap();
   const { id } = useParams<{ id: string }>();
   const nav = useNav();
   const { trip, loaded, vehicle, route, boardStop, endTrip, setOnboard, setTripAlerts } = useTripContext(id);
@@ -115,9 +118,13 @@ export default function Trip() {
                 title="Alert me 2 min before it arrives"
                 trailing="switch"
                 checked={trip?.arrival_alert ?? true}
-                onCheckedChange={(c) => trip && setTripAlerts(trip.id, { arrivalAlert: c })}
+                onCheckedChange={(c) => {
+                  if (c) pushOn();
+                  if (trip) setTripAlerts(trip.id, { arrivalAlert: c });
+                }}
                 className="border-b-0"
               />
+              <AddToHomeScreenHint />
               <View className="gap-3">
                 <Button label="I'm on board" loading={busy} disabled={!trip} onPress={() => trip && run(() => setOnboard(trip.id), `/trip/${trip.id}/onboard`)} />
                 <Button label="Stop tracking" variant="ghost" disabled={!trip || busy} onPress={() => trip && run(() => endTrip(trip.id), "/home")} />
