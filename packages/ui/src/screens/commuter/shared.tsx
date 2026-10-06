@@ -8,6 +8,7 @@ import { useOriginStop } from "../../data/origin";
 import type { LiveVehicle, Route, Stop } from "../../data/types";
 import { useLocation } from "../../lib/location";
 import { useNav } from "../../lib/nav";
+import { useIsWide } from "../../lib/responsive";
 import { IconButton } from "../../components/IconButton";
 import type { LatLng, MapVehicleItem } from "../../components/Map.types";
 import { Sheet } from "../../components/Sheet";
@@ -104,6 +105,63 @@ export function ScrollSheet({
         {children}
       </ScrollView>
     </Sheet>
+  );
+}
+
+/** Floating left panel on wide screens: 400 px wide, 16 px from the top, left and bottom. */
+const PANEL = 400;
+const GUTTER = 16;
+
+/** Map insets for the layout: the sheet covers the bottom on phones, the panel covers the left on wide screens. */
+export const useMapInsets = (bottom: number) => {
+  const wide = useIsWide();
+  return wide ? { bottomInset: 0, leftInset: PANEL + GUTTER } : { bottomInset: bottom, leftInset: 0 };
+};
+
+/**
+ * Everything that sits over a map screen. On phones: `top` floats over the map and `children` go in
+ * the bottom sheet, with `footer` (the tab bar) under it. From `md` up it is one scrolling panel,
+ * with `top` first and `footer` last.
+ */
+export function MapPanel({
+  top,
+  footer,
+  heights,
+  expanded,
+  onExpandedChange,
+  children,
+}: {
+  top?: ReactNode;
+  footer?: ReactNode;
+  heights: [number, number];
+  expanded?: boolean;
+  onExpandedChange?: (e: boolean) => void;
+  children: ReactNode;
+}) {
+  const wide = useIsWide();
+  if (wide) {
+    return (
+      <View pointerEvents="box-none" className="absolute bottom-4 left-4 top-4 w-[400px]">
+        <View className="flex-1 overflow-hidden rounded-panel bg-surface shadow-sheet">
+          {top}
+          <ScrollView className="flex-1" contentContainerClassName="gap-4 px-4 pb-4 pt-3" showsVerticalScrollIndicator={false}>
+            {children}
+          </ScrollView>
+          {footer}
+        </View>
+      </View>
+    );
+  }
+  return (
+    <>
+      {top ? <TopOverlay>{top}</TopOverlay> : null}
+      <View className="absolute inset-x-0 bottom-0">
+        <ScrollSheet heights={heights} expanded={expanded} onExpandedChange={onExpandedChange}>
+          {children}
+        </ScrollSheet>
+        {footer}
+      </View>
+    </>
   );
 }
 

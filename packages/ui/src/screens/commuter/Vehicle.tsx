@@ -15,7 +15,7 @@ import { TransitMap } from "../../components/Map";
 import { Plate } from "../../components/Plate";
 import { SettingsRow } from "../../components/SettingsRow";
 import { vehicleKinds } from "../../components/VehicleMarker";
-import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, TopOverlay, useNow, useOrigin, useRouteWithStops, useSheetHeights } from "./shared";
+import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, MapPanel, useNow, useOrigin, useRouteWithStops, useMapInsets, useSheetHeights } from "./shared";
 
 const fareLabel = { regular: "Regular", student: "Student, 20% off", senior: "Senior, 20% off", pwd: "PWD, 20% off" } as const;
 
@@ -37,6 +37,7 @@ export default function Vehicle() {
   const [error, setError] = useState<string | null>(null);
   const now = useNow();
   const heights = useSheetHeights(160, 540);
+  const insets = useMapInsets(heights[1] + 16);
 
   const yours = useMemo(
     () => (origin.point ? nearestStop(origin.point, stops.map((s) => ({ ...s.stop, offsetM: s.offsetM }))) : null),
@@ -86,13 +87,9 @@ export default function Vehicle() {
         stops={yours ? [{ id: yours.stop.id, ...pointOf(yours.stop), name: yours.stop.name ?? "Stop", kind: "yours" }] : []}
         vehicles={mapVehicle ? [mapVehicle] : []}
         you={origin.position}
-        bottomInset={heights[1] + 16}
+        {...insets}
       />
-      <TopOverlay>
-        <BackButton label="Back" />
-      </TopOverlay>
-      <View className="absolute inset-x-0 bottom-0">
-        <ScrollSheet heights={heights}>
+      <MapPanel top={<BackButton label="Back" />} heights={heights}>
           {vehicle && seat ? (
             <>
               <View className="gap-[2px]">
@@ -161,8 +158,7 @@ export default function Vehicle() {
           ) : (
             <Text className="py-6 text-center font-sans text-body-sm text-text-muted">Loading vehicle</Text>
           )}
-        </ScrollSheet>
-      </View>
+      </MapPanel>
     </View>
   );
 }

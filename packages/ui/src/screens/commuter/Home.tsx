@@ -19,7 +19,7 @@ import { SegmentedControl } from "../../components/SegmentedControl";
 import { TabBar, type Tab } from "../../components/TabBar";
 import { vehicleKinds, type VehicleType } from "../../components/VehicleMarker";
 import colors from "../../theme/colors";
-import { kindOf, marker, pointOf, ScrollSheet, seatBadge, SheetTitle, TAB_BAR, TopOverlay, useNow, useOrigin, useSheetHeights } from "./shared";
+import { kindOf, MapPanel, marker, pointOf, seatBadge, SheetTitle, TAB_BAR, useMapInsets, useNow, useOrigin, useSheetHeights } from "./shared";
 
 type Filter = "all" | VehicleType;
 const filters: { value: Filter; label: string }[] = [
@@ -80,6 +80,7 @@ export default function Home() {
   const [expanded, setExpanded] = useState(true);
   const now = useNow();
   const heights = useSheetHeights(150, 336);
+  const insets = useMapInsets(heights[expanded ? 1 : 0] + TAB_BAR + 16);
 
   const shown = useMemo(() => (filter === "all" ? rows : rows.filter((r) => kindOf(r.route) === filter)), [rows, filter]);
   const vehicles = useMemo(
@@ -109,15 +110,19 @@ export default function Home() {
         stops={stops}
         vehicles={vehicles}
         you={origin.position}
-        bottomInset={heights[expanded ? 1 : 0] + TAB_BAR + 16}
+        {...insets}
       />
-      <TopOverlay>
-        <View className="px-4 pt-[12px]">
-          <SearchBar onPress={() => nav.push("/search")} />
-        </View>
-      </TopOverlay>
-      <View className="absolute inset-x-0 bottom-0">
-        <ScrollSheet heights={heights} expanded={expanded} onExpandedChange={setExpanded}>
+      <MapPanel
+        top={
+          <View className="px-4 pt-[12px]">
+            <SearchBar onPress={() => nav.push("/search")} />
+          </View>
+        }
+        footer={<TabBar active="map" unread={unreadCount} onSelect={onTab} />}
+        heights={heights}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+      >
           <View className="flex-row items-start gap-3">
             <SheetTitle>Nearby now</SheetTitle>
             {offline ? (
@@ -169,9 +174,7 @@ export default function Home() {
               )}
             </>
           )}
-        </ScrollSheet>
-        <TabBar active="map" unread={unreadCount} onSelect={onTab} />
-      </View>
+      </MapPanel>
     </View>
   );
 }

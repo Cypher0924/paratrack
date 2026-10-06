@@ -11,7 +11,7 @@ import { TransitMap } from "../../components/Map";
 import type { MapStopItem, MapVehicleItem } from "../../components/Map.types";
 import { vehicleKinds } from "../../components/VehicleMarker";
 import colors from "../../theme/colors";
-import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, ScrollSheet, seatBadge, SheetTitle, TopOverlay, useNow, useOrigin, useRouteWithStops, useSheetHeights } from "./shared";
+import { BackButton, etaToStop, kindOf, liveSeat, marker, pointOf, MapPanel, seatBadge, SheetTitle, useNow, useOrigin, useRouteWithStops, useMapInsets, useSheetHeights } from "./shared";
 
 /** Figma 08 Route. */
 export default function RouteDetail() {
@@ -26,6 +26,7 @@ export default function RouteDetail() {
   const { vehicles, status } = useLiveVehicles();
   const now = useNow();
   const heights = useSheetHeights(160, 364);
+  const insets = useMapInsets(heights[1] + 16);
 
   const yours = useMemo(
     () => (origin.point ? nearestStop(origin.point, stops.map((s) => ({ ...s.stop, offsetM: s.offsetM }))) : null),
@@ -69,13 +70,9 @@ export default function RouteDetail() {
         stops={mapStops}
         vehicles={mapVehicles}
         you={origin.position}
-        bottomInset={heights[1] + 16}
+        {...insets}
       />
-      <TopOverlay>
-        <BackButton label="Back" />
-      </TopOverlay>
-      <View className="absolute inset-x-0 bottom-0">
-        <ScrollSheet heights={heights}>
+      <MapPanel top={<BackButton label="Back" />} heights={heights}>
           <View className="flex-row items-start gap-3">
             <SheetTitle caption={route ? `${kind}${route.headway_min ? ` every ${route.headway_min} min` : ""}${fares}` : undefined}>
               {route?.name ?? "Route"}
@@ -112,8 +109,7 @@ export default function RouteDetail() {
               })}
             </View>
           )}
-        </ScrollSheet>
-      </View>
+      </MapPanel>
     </View>
   );
 }

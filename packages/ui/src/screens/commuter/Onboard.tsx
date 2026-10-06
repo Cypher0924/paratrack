@@ -11,7 +11,7 @@ import { Button } from "../../components/Button";
 import { TransitMap } from "../../components/Map";
 import { SettingsRow } from "../../components/SettingsRow";
 import { TimelineRow } from "../../components/TimelineRow";
-import { kindOf, marker, pointOf, ScrollSheet, SheetTitle, TopOverlay, useNow, useOrigin, useSheetHeights, useTripContext } from "./shared";
+import { kindOf, marker, pointOf, MapPanel, SheetTitle, useNow, useOrigin, useMapInsets, useSheetHeights, useTripContext } from "./shared";
 
 /** Figma 12 On board. */
 export default function Onboard() {
@@ -23,6 +23,7 @@ export default function Onboard() {
   const now = useNow(2000);
   const [busy, setBusy] = useState(false);
   const heights = useSheetHeights(150, 452);
+  const insets = useMapInsets(heights[1] + 16);
 
   useEffect(() => {
     if (!loaded) return;
@@ -75,19 +76,20 @@ export default function Onboard() {
         routes={route ? [{ id: route.id, path }] : []}
         stops={alightStop ? [{ id: alightStop.stop.id, ...pointOf(alightStop.stop), name: alightStop.stop.name ?? "Stop", kind: "destination" }] : []}
         vehicles={mapVehicle ? [mapVehicle] : []}
-        bottomInset={heights[1] + 16}
+        {...insets}
       />
-      <TopOverlay>
-        <View className="px-4 pt-[12px]">
+      <MapPanel
+        top={
+          <View className="px-4 pt-[12px]">
           {vehicle && !online ? (
             <Banner tone="warning" icon={WarningIcon} title={`${vehicle.label} stopped sharing`} body="We cannot track it right now. Keep an eye out for your stop." />
           ) : nextIsYours && trip?.para_alert && para ? (
             <Banner tone="info" icon={InfoIcon} title={para.title} body={para.body} />
           ) : null}
-        </View>
-      </TopOverlay>
-      <View className="absolute inset-x-0 bottom-0">
-        <ScrollSheet heights={heights}>
+          </View>
+        }
+        heights={heights}
+      >
           <SheetTitle
             caption={
               destination?.etaSec != null && online
@@ -126,8 +128,7 @@ export default function Onboard() {
             className="border-b-0"
           />
           <Button label="End trip" variant="secondary" loading={busy} disabled={!trip} onPress={end} />
-        </ScrollSheet>
-      </View>
+      </MapPanel>
     </View>
   );
 }
