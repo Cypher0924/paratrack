@@ -12,6 +12,7 @@ import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
 import { CapacityBar } from "../../components/CapacityBar";
 import { CountButton } from "../../components/CountButton";
+import { Page } from "../../components/Page";
 import { SettingsRow } from "../../components/SettingsRow";
 import { TabBar, type Tab } from "../../components/TabBar";
 import { vehicleKinds } from "../../components/VehicleMarker";
@@ -87,7 +88,34 @@ export function DriverHome() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <Page
+      overlay={
+        confirm ? (
+
+            <View className="absolute inset-0 justify-end md:items-center md:justify-center">
+              <Pressable aria-label="Close" onPress={() => setConfirm(false)} className="absolute inset-0 bg-foreground/40" />
+              <View
+                role="dialog"
+                aria-modal
+                aria-label="Go offline?"
+                className="gap-4 rounded-t-surface bg-surface px-4 pb-safe pt-4 shadow-sheet md:w-[440px] md:rounded-panel md:p-6"
+              >
+                <View className="h-[5px] w-[40px] self-center rounded-pill bg-border" />
+                <Text className="font-sans-medium text-title-md text-foreground">Go offline?</Text>
+                <Text className="font-sans text-body-md text-text-secondary">
+                  {s.trackers === 0
+                    ? `No commuters are tracking ${name} right now. You will stop showing on the map.`
+                    : `${commuters(s.trackers)} tracking ${name}. They will stop seeing your location and seats.`}
+                </Text>
+                <View className="gap-3 pb-4">
+                  <Button label="Go offline" variant="danger" onPress={leave} />
+                  <Button label="Stay online" variant="secondary" onPress={() => setConfirm(false)} />
+                </View>
+              </View>
+            </View>
+        ) : null
+      }
+    >
       <View className="flex-1">
         <ScrollView contentContainerClassName="px-4 pb-6 pt-safe" keyboardShouldPersistTaps="handled">
           <View className="gap-6 pt-4">
@@ -208,29 +236,6 @@ export function DriverHome() {
 
       <TabBar variant="driver" active="drive" onSelect={onTab} />
 
-      {confirm && (
-        <View className="absolute inset-0 justify-end">
-          <Pressable aria-label="Close" onPress={() => setConfirm(false)} className="absolute inset-0 bg-foreground/40" />
-          <View
-            role="dialog"
-            aria-modal
-            aria-label="Go offline?"
-            className="gap-4 rounded-t-surface bg-surface px-4 pb-safe pt-4 shadow-sheet"
-          >
-            <View className="h-[5px] w-[40px] self-center rounded-pill bg-border" />
-            <Text className="font-sans-medium text-title-md text-foreground">Go offline?</Text>
-            <Text className="font-sans text-body-md text-text-secondary">
-              {s.trackers === 0
-                ? `No commuters are tracking ${name} right now. You will stop showing on the map.`
-                : `${commuters(s.trackers)} tracking ${name}. They will stop seeing your location and seats.`}
-            </Text>
-            <View className="gap-3 pb-4">
-              <Button label="Go offline" variant="danger" onPress={leave} />
-              <Button label="Stay online" variant="secondary" onPress={() => setConfirm(false)} />
-            </View>
-          </View>
-        </View>
-      )}
-    </View>
+    </Page>
   );
 }

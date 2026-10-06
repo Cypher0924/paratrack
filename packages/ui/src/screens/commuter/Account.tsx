@@ -6,6 +6,7 @@ import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { SteeringWheelIcon } from "phosphor-react-native/src/icons/SteeringWheel";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import { Page } from "../../components/Page";
 import { Avatar } from "../../components/Avatar";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { SettingsRow } from "../../components/SettingsRow";
@@ -58,7 +59,7 @@ export default function Account() {
   const fareType = profile?.fare_type ?? "regular";
   const name = profile?.display_name || "Your account";
   return (
-    <View className="flex-1 bg-background pt-safe">
+    <Page className="pt-safe">
       <ScrollView contentContainerClassName="gap-5 px-4 pb-6 pt-4">
         <Text role="heading" className="font-display text-title-lg text-foreground">
           Account
@@ -136,6 +137,6 @@ export default function Account() {
         </View>
       </ScrollView>
       <TabBar active="account" unread={unreadCount} onSelect={(t) => t !== "account" && nav.replace(tabPath[t])} />
-    </View>
+    </Page>
   );
 }
