@@ -56,7 +56,7 @@ test("commuter signs in and lands on home", async ({ page }, info) => {
 
   await enterCode(page, OTP);
   await page.waitForURL("**/home");
-  await expect(page.getByRole("heading", { name: "You are signed in" })).toBeVisible();
+  await expect(page.getByText("Nearby now")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
