@@ -92,7 +92,7 @@ test("driver verifies a vehicle after a wrong try", async ({ page }, info) => {
   const { driver } = number(info);
 
   await page.goto("/");
-  await page.getByRole("button", { name: "I drive a route" }).click();
+  await page.getByRole("button", { name: "I'm a driver" }).click();
   await page.waitForURL("**/login?role=driver");
   await requestCode(page, driver);
   await enterCode(page, OTP);

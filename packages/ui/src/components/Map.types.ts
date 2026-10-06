@@ -36,6 +36,8 @@ export type MapProps = {
   you?: LatLng | null;
   /** Height of whatever covers the bottom of the map, so the Google logo stays visible above it. */
   bottomInset?: number;
+  /** Width of a panel floating over the map's left side (web, `md` and up). The camera frames points in the space to its right. */
+  leftInset?: number;
 };
 
 // Tarlac City, used when nothing else says where to look.

@@ -7,6 +7,8 @@ import { Button } from "../../components/Button";
 import { MapPreview } from "../../components/MapPreview";
 import { YouMarker } from "../../components/YouMarker";
 import { useNav } from "../../lib/nav";
+import { useIsWide } from "../../lib/responsive";
+import { OnboardingFrame } from "./OnboardingFrame";
 import colors from "../../theme/colors";
 
 /** The welcome route in viewport px. Figma draws an open L, not a loop. */
@@ -72,9 +74,36 @@ function Dot({ left, top, kind }: { left: number; top: number; kind: "stop" | "y
   );
 }
 
-/** Figma 01 Welcome: illustration map, then the brand, headline and the two ways in. */
+/** Figma 01 Welcome: illustration map, then the brand, headline and the two ways in. From `md` up it is a card over a live map. */
 export default function Welcome() {
   const { push } = useNav();
+  const wide = useIsWide();
+  const copy = (
+    <View className="gap-4">
+      <Logo height={36} />
+      <Text role="heading" className="font-display text-display-lg text-foreground">Know where your ride is</Text>
+      <Text className="font-sans text-body-md text-text-secondary">
+        Live shuttles, e-jeeps, and buses near you, with seats left and the fare before you board.
+      </Text>
+    </View>
+  );
+  const actions = (
+    <>
+      <Button label="Find rides near me" onPress={() => push("/location")} />
+      <Button variant="secondary" label="I'm a driver" onPress={() => push("/login?role=driver")} />
+    </>
+  );
+
+  if (wide) {
+    return (
+      <OnboardingFrame>
+        <View className="p-7">
+          {copy}
+          <View className="gap-3 pt-8">{actions}</View>
+        </View>
+      </OnboardingFrame>
+    );
+  }
   return (
     <View className="h-full w-full flex-1 bg-background">
       <MapPreview routePath={route} className="h-[480px] w-full">
@@ -91,17 +120,8 @@ export default function Welcome() {
 
       {/* The panel overlaps the bottom of the map band, as in Figma. */}
       <View className="-mt-[404px] flex-1 justify-end rounded-t-surface bg-surface px-6 pb-[50px] pt-8 shadow-sheet">
-        <View className="gap-4">
-          <Logo height={36} />
-          <Text role="heading" className="font-display text-display-lg text-foreground">Know where your ride is</Text>
-          <Text className="font-sans text-body-md text-text-secondary">
-            Live shuttles, e-jeeps, and buses near you, with seats left and the fare before you board.
-          </Text>
-        </View>
-        <View className="mt-auto gap-3 pt-8">
-          <Button label="Find rides near me" onPress={() => push("/location")} />
-          <Button variant="secondary" label="I drive a route" onPress={() => push("/login?role=driver")} />
-        </View>
+        {copy}
+        <View className="mt-auto gap-3 pt-8">{actions}</View>
       </View>
     </View>
   );

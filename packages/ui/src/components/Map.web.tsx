@@ -66,7 +66,7 @@ function RoutePath({ path }: { path: LatLng[] }) {
 }
 
 /** Moves the camera: refits when the points change, otherwise centers once. Hands the map up for the recenter button. */
-function Camera({ fit, center, onMap }: Pick<MapProps, "fit" | "center"> & { onMap: (m: google.maps.Map | null) => void }) {
+function Camera({ fit, center, leftInset = 0, onMap }: Pick<MapProps, "fit" | "center" | "leftInset"> & { onMap: (m: google.maps.Map | null) => void }) {
   const map = useMap();
   useEffect(() => onMap(map), [map, onMap]);
   const fitKey = (fit ?? []).map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`).join("|");
@@ -75,11 +75,12 @@ function Camera({ fit, center, onMap }: Pick<MapProps, "fit" | "center"> & { onM
     if (fit.length === 1) {
       map.setCenter(fit[0]);
       map.setZoom(16);
+      if (leftInset) map.panBy(-leftInset / 2, 0);
       return;
     }
     const b = new google.maps.LatLngBounds();
     fit.forEach((p) => b.extend(p));
-    map.fitBounds(b, { top: 100, left: 40, right: 40, bottom: 40 });
+    map.fitBounds(b, { top: 100, left: 40 + leftInset, right: 40, bottom: 40 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, fitKey]);
   const centered = useRef(false);
@@ -88,12 +89,13 @@ function Camera({ fit, center, onMap }: Pick<MapProps, "fit" | "center"> & { onM
     centered.current = true;
     map.setCenter(center);
     map.setZoom(16);
+    if (leftInset) map.panBy(-leftInset / 2, 0);
   }, [map, center, fit]);
   return null;
 }
 
 /** Google Maps with the default style. Markers are the shared RN views inside Advanced Markers. */
-export function TransitMap({ center, fit, routes = [], vehicles = [], stops = [], you, bottomInset = 0 }: MapProps) {
+export function TransitMap({ center, fit, routes = [], vehicles = [], stops = [], you, bottomInset = 0, leftInset = 0 }: MapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   if (!KEY || !MAP_ID) return <MapPlaceholder />;
   const start = center ?? fit?.[0] ?? DEFAULT_CENTER;
@@ -111,7 +113,7 @@ export function TransitMap({ center, fit, routes = [], vehicles = [], stops = []
             gestureHandling="greedy"
             style={{ width: "100%", height: "100%" }}
           >
-            <Camera fit={fit} center={center} onMap={setMap} />
+            <Camera fit={fit} center={center} leftInset={leftInset} onMap={setMap} />
             {routes.map((r) => (
               <RoutePath key={r.id} path={r.path} />
             ))}

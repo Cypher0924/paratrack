@@ -4,6 +4,8 @@ import { Button } from "../../components/Button";
 import { MapPreview } from "../../components/MapPreview";
 import { YouMarker } from "../../components/YouMarker";
 import { useNav } from "../../lib/nav";
+import { useIsWide } from "../../lib/responsive";
+import { OnboardingFrame } from "./OnboardingFrame";
 import { requestLocation } from "../../lib/location";
 import { setOriginStop } from "../../data/origin";
 
@@ -12,7 +14,54 @@ export default function Location() {
   const { push } = useNav();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const wide = useIsWide();
 
+  const panel = (
+    <>
+      <View className="gap-4">
+        <Text role="heading" className="font-display text-title-lg text-foreground">See rides near you</Text>
+        <Text className="font-sans text-body-md text-text-secondary">
+          ParaTrack uses your location to show nearby stops and arrival times. Drivers never see it.
+        </Text>
+      </View>
+      <View className="mt-auto gap-3 pt-8">
+        <Button
+          label="Allow location"
+          loading={busy}
+          onPress={async () => {
+            setBusy(true);
+            const position = await requestLocation();
+            setBusy(false);
+            // Denied or unavailable: stay here so the stop picker is still offered.
+            if (position) push("/login");
+            else setFailed(true);
+          }}
+        />
+        <Button
+          variant="secondary"
+          label="Choose my stop instead"
+          onPress={async () => {
+            // The stop picker is Task 6. Clearing the origin makes it open on first login.
+            await setOriginStop(null);
+            push("/login");
+          }}
+        />
+      </View>
+      <Text className="pt-3 font-sans text-body-sm text-text-muted">
+        {failed
+          ? "Location is off. Turn it back on in Settings, or choose a stop instead."
+          : "Your position never leaves this device."}
+      </Text>
+    </>
+  );
+
+  if (wide) {
+    return (
+      <OnboardingFrame>
+        <View className="p-7">{panel}</View>
+      </OnboardingFrame>
+    );
+  }
   return (
     <View className="h-full w-full flex-1 bg-background">
       <MapPreview offsetX={-337} offsetY={-580} className="h-[480px] w-full">
@@ -47,40 +96,7 @@ export default function Location() {
       </MapPreview>
 
       <View className="-mt-[404px] flex-1 justify-end rounded-t-surface bg-surface px-6 pb-[50px] pt-8 shadow-sheet">
-        <View className="gap-4">
-          <Text role="heading" className="font-display text-title-lg text-foreground">See rides near you</Text>
-          <Text className="font-sans text-body-md text-text-secondary">
-            ParaTrack uses your location to show nearby stops and arrival times. Drivers never see it.
-          </Text>
-        </View>
-        <View className="mt-auto gap-3 pt-8">
-          <Button
-            label="Allow location"
-            loading={busy}
-            onPress={async () => {
-              setBusy(true);
-              const position = await requestLocation();
-              setBusy(false);
-              // Denied or unavailable: stay here so the stop picker is still offered.
-              if (position) push("/login");
-              else setFailed(true);
-            }}
-          />
-          <Button
-            variant="secondary"
-            label="Choose my stop instead"
-            onPress={async () => {
-              // The stop picker is Task 6. Clearing the origin makes it open on first login.
-              await setOriginStop(null);
-              push("/login");
-            }}
-          />
-        </View>
-        <Text className="pt-3 font-sans text-body-sm text-text-muted">
-          {failed
-            ? "Location is off. Turn it back on in Settings, or choose a stop instead."
-            : "Your position never leaves this device."}
-        </Text>
+        {panel}
       </View>
     </View>
   );
