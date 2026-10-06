@@ -93,6 +93,15 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [shown],
   );
+  // Fit the camera to you and the two soonest vehicles. Keyed by which vehicles they are (and your position to
+  // about 100 m), so pings moving the markers don't keep refitting the map.
+  const soonest = vehicles.slice(0, 2);
+  const fitKey = `${soonest.map((v) => v.id).join(",")}|${origin.point?.lat.toFixed(3)},${origin.point?.lng.toFixed(3)}`;
+  const fit = useMemo(
+    () => (origin.point && soonest.length ? [origin.point, ...soonest.map((v) => ({ lat: v.lat, lng: v.lng }))] : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fitKey],
+  );
   const stops = useMemo<MapStopItem[]>(() => {
     const seen = new Map<string, MapStopItem>();
     for (const r of shown) if (!seen.has(r.stop.id)) seen.set(r.stop.id, { id: r.stop.id, ...pointOf(r.stop), name: r.stop.name ?? "Stop" });
@@ -108,7 +117,7 @@ export default function Home() {
     <View className="h-full w-full flex-1 bg-surface-muted">
       <TransitMap
         center={origin.point}
-        fit={undefined}
+        fit={fit}
         stops={stops}
         vehicles={vehicles}
         you={origin.position}
