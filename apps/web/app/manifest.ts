@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ParaTrack",
     short_name: "ParaTrack",
     description: "Live PUV tracking for Tarlac City",
-    start_url: "/",
+    start_url: "/start",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

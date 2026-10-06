@@ -4,7 +4,7 @@ test("manifest serves with scope /", async ({ request }) => {
   const res = await request.get("/manifest.webmanifest");
   expect(res.ok()).toBe(true);
   const m = await res.json();
-  expect(m).toMatchObject({ name: "ParaTrack", scope: "/", start_url: "/", display: "standalone" });
+  expect(m).toMatchObject({ name: "ParaTrack", scope: "/", start_url: "/start", display: "standalone" });
   expect(m.icons.some((i: { purpose?: string }) => i.purpose === "maskable")).toBe(true);
 });
 

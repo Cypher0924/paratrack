@@ -1,6 +1,6 @@
 // ParaTrack service worker: web push, app badge, and a minimal app-shell cache for offline launch.
-const CACHE = "paratrack-shell-v1";
-const SHELL = ["/", "/icon-192.png", "/manifest.webmanifest"];
+const CACHE = "paratrack-shell-v2";
+const SHELL = ["/start", "/icon-192.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -27,10 +27,10 @@ self.addEventListener("fetch", (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("/", copy));
+          caches.open(CACHE).then((c) => c.put("/start", copy));
           return res;
         })
-        .catch(() => caches.match("/").then((r) => r || Response.error())),
+        .catch(() => caches.match("/start").then((r) => r || Response.error())),
     );
     return;
   }
