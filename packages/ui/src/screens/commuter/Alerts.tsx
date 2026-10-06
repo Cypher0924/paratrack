@@ -1,18 +1,15 @@
 import { BusIcon } from "phosphor-react-native/src/icons/Bus";
 import { useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { Page } from "../../components/Page";
+import { CommuterPage } from "../../components/CommuterPage";
 import { groupByDay, timeAgo } from "@repo/core";
 import { AlertItem } from "../../components/AlertItem";
 import { Button } from "../../components/Button";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { StatusDisc } from "../../components/StatusDisc";
-import { TabBar } from "../../components/TabBar";
 import { useNotifications } from "../../data/hooks";
 import type { AppNotification } from "../../data/types";
-import { useNav } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
-import { tabPath } from "./tabs";
 
 const filters = [
   { value: "all", label: "All" },
@@ -42,7 +39,6 @@ function Group({ title, items, now }: { title: string; items: AppNotification[];
 
 /** Figma 13 Alerts. */
 export default function Alerts() {
-  const nav = useNav();
   const { ready } = useSessionGuard("in");
   const { notifications, unreadCount, markAllRead } = useNotifications();
   const [filter, setFilter] = useState<(typeof filters)[number]["value"]>("all");
@@ -53,8 +49,8 @@ export default function Alerts() {
   );
   if (!ready) return null;
   return (
-    <Page className="pt-safe">
-      <ScrollView contentContainerClassName="gap-4 px-4 pb-6 pt-4">
+    <CommuterPage tab="alerts" unread={unreadCount} className="pt-safe">
+      <ScrollView contentContainerClassName="gap-4 px-4 pb-6 pt-4 md:px-6 md:pt-6">
         <View className="flex-row items-center gap-3">
           <Text role="heading" className="flex-1 font-display text-title-lg text-foreground">
             Alerts
@@ -77,7 +73,6 @@ export default function Alerts() {
           </>
         )}
       </ScrollView>
-      <TabBar active="alerts" unread={unreadCount} onSelect={(t) => t !== "alerts" && nav.replace(tabPath[t])} />
-    </Page>
+    </CommuterPage>
   );
 }
