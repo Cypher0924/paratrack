@@ -7,6 +7,7 @@ import { Button } from "../../components/Button";
 import { MapPreview } from "../../components/MapPreview";
 import { YouMarker } from "../../components/YouMarker";
 import { useNav } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { useIsWide } from "../../lib/responsive";
 import { OnboardingFrame } from "./OnboardingFrame";
 import colors from "../../theme/colors";
@@ -76,6 +77,8 @@ function Dot({ left, top, kind }: { left: number; top: number; kind: "stop" | "y
 
 /** Figma 01 Welcome: illustration map, then the brand, headline and the two ways in. From `md` up it is a card over a live map. */
 export default function Welcome() {
+  // Signed-in users skip onboarding: commuters to /home, drivers to /driver.
+  useSessionGuard("out");
   const { push } = useNav();
   const wide = useIsWide();
   const copy = (

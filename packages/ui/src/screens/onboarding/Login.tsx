@@ -4,6 +4,7 @@ import { AppBar } from "../../components/AppBar";
 import { Button } from "../../components/Button";
 import { OnboardingFrame } from "./OnboardingFrame";
 import { useNav, useQuery } from "../../lib/nav";
+import { useSessionGuard } from "../../lib/session";
 import { useSession } from "../../data/hooks";
 import { parsePhMobile } from "@repo/core";
 import colors from "../../theme/colors";
@@ -24,6 +25,8 @@ const group = (digits: string) => {
  * sends success to `/driver/verify` instead of `/home`.
  */
 export default function Login() {
+  // Signed-in users skip onboarding: commuters to /home, drivers to /driver.
+  useSessionGuard("out");
   const { push, replace } = useNav();
   const { role } = useQuery();
   const { signInWithPhone } = useSession();
