@@ -6,6 +6,7 @@ import { AppBar } from "../../components/AppBar";
 import { Button } from "../../components/Button";
 import { OtpCell } from "../../components/OtpCell";
 import { useSession } from "../../data/hooks";
+import { supabase } from "../../lib/supabase";
 import { OnboardingFrame } from "./OnboardingFrame";
 import { useNav, useQuery } from "../../lib/nav";
 import colors from "../../theme/colors";
@@ -26,7 +27,7 @@ const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds
  * and the caret is always in the right cell.
  */
 export default function Verify() {
-  const { push, replace } = useNav();
+  const { replace } = useNav();
   const { phone, role } = useQuery();
   const { verifyCode, signInWithPhone } = useSession();
   const [code, setCode] = useState("");
@@ -55,7 +56,10 @@ export default function Verify() {
       setCode("");
       input.current?.focus();
     } else {
-      push(role === "driver" ? "/driver/verify" : "/home");
+      if (role !== "driver") return replace("/home");
+      // A driver who already verified a vehicle goes straight to the shift screen.
+      const { data } = await supabase.from("drivers").select("vehicle_id").maybeSingle();
+      replace(data?.vehicle_id ? "/driver" : "/driver/verify");
     }
   };
 

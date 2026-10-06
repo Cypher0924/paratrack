@@ -42,7 +42,7 @@ export default function DriverVerify() {
 
   return (
     <OnboardingFrame>
-      <AppBar title="" onBack={() => replace("/login")} backLabel="Back to the mobile number" />
+      <AppBar title="" onBack={() => replace("/home")} backLabel="Back to home" />
       <View className="flex-1 gap-6 px-6 pt-4 md:px-0">
         <View className="gap-2">
           <Text role="heading" className="font-display text-title-lg text-foreground">Verify your vehicle</Text>

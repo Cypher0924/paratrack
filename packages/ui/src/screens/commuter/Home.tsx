@@ -1,5 +1,6 @@
 import { clockTime, etaLabel } from "@repo/core";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { setAppMode } from "../../data/mode";
 import { Text, View } from "react-native";
 import { BusIcon } from "phosphor-react-native/src/icons/Bus";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
@@ -71,6 +72,7 @@ function Empty({ filter, rows, onAll }: { filter: Filter; rows: NearbyRow[]; onA
 
 /** Figma 06 Home with 20 no vehicles, 21 loading and 22 offline. */
 export default function Home() {
+  useEffect(() => setAppMode("commuter"), []);
   const { ready } = useSessionGuard("in");
   const nav = useNav();
   const origin = useOrigin();
