@@ -59,7 +59,7 @@ export default function Trip() {
 
   if (!ready) return null;
   return (
-    <View className="flex-1 bg-surface-muted">
+    <View className="h-full w-full flex-1 bg-surface-muted">
       <TransitMap
         center={origin.point}
         fit={[...(shown ? [shown] : []), ...(boardStop ? [pointOf(boardStop.stop)] : [])]}

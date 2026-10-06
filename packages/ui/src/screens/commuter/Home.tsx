@@ -102,7 +102,7 @@ export default function Home() {
 
   if (!ready) return null;
   return (
-    <View className="flex-1 bg-surface-muted">
+    <View className="h-full w-full flex-1 bg-surface-muted">
       <TransitMap
         center={origin.point}
         fit={undefined}
