@@ -51,10 +51,10 @@ Turborepo monorepo (from the `with-react-native-web` example) using npm workspac
 
 Run from the repo root:
 
-- `npm run dev`: all `dev` tasks (web Next.js server, native Expo web, `@repo/ui` tsup watch)
-- `npm run build`: builds `@repo/ui` first (`dependsOn: ["^build"]`), then `web`
+- `npm run dev`: all `dev` tasks (web Next.js server, native Expo web)
+- `npm run build`: builds `web` (`@repo/ui` has no build step)
 - `npm run format`: Prettier over the whole repo
-- `npx turbo run dev --filter=web` (or `native`, `@repo/ui`): one workspace
+- `npx turbo run dev --filter=web` (or `native`): one workspace
 - `npm run android -w native` / `npm run ios -w native`: native builds via Expo
 
 - `npm test`: Vitest (unit, integration, repo config). Integration tests hit `paratrack-dev` using `apps/web/.env.local` and the root `.env`.
@@ -66,8 +66,8 @@ Lint exists only in `web` (`npx turbo run lint --filter=web`), using the ESLint 
 
 ### Architecture
 
-- `packages/ui` (`@repo/ui`): shared components written against `react-native` primitives. Built with tsup to `dist/` (CJS + ESM + types, `'use client'` banner). Consumers import `dist/`, not `src/`, so it must be built (or running `tsup --watch`) before `web` sees changes.
-- `apps/web`: Next.js 16 App Router. `next.config.js` aliases `react-native` to `react-native-web` and prefers `.web.*` extensions, for both Turbopack and webpack. Keep both blocks in sync. Pages that render `@repo/ui` need `"use client"`. Web-only Arc UI components (uiarc.dev, shadcn registry) are copied into `components/arc/` via `apps/web/components.json`. Add more with `npx shadcn@latest add @uiarc/<name>` from `apps/web`. Tokens load from `components/arc/foundation.css` in `app/layout.tsx`. `@/*` maps to the `apps/web` root.
+- `packages/ui` (`@repo/ui`): shared components written against `react-native` primitives and styled with NativeWind classes. Consumed from source (`main` is `src/index.tsx`, no build). `theme/preset.js` is the Tailwind preset (Figma tokens) used by both apps' `tailwind.config.js`. Platform shims are `*.web.ts` / `*.native.ts` with a plain `.ts` fallback for types.
+- `apps/web`: Next.js 16 App Router. `next.config.js` aliases `react-native` to `react-native-web` and prefers `.web.*` extensions, for both Turbopack and webpack. Keep both blocks in sync. Pages that render `@repo/ui` need `"use client"`. Tailwind 3 (NativeWind 4, never Tailwind 4) is loaded from `app/globals.css` before Arc's `foundation.css`. `transpilePackages` covers the React Native packages. Web-only Arc UI components (uiarc.dev, shadcn registry) are copied into `components/arc/` via `apps/web/components.json`. Add more with `npx shadcn@latest add @uiarc/<name>` from `apps/web`. Tokens load from `components/arc/foundation.css` in `app/layout.tsx`. `@/*` maps to the `apps/web` root.
 - `apps/native`: Expo SDK 55 with expo-router (routes in `app/`, entry `index.js`). Metro uses Expo's default config, which auto-detects the monorepo. `react-native` version must match what the Expo SDK expects.
 - `packages/core` (`@repo/core`): pure TypeScript shared by web, native and API routes: fares, ETAs, alert rules, notification copy, PH phone parsing, zod schemas and the generated `Database` types. No React Native imports. Regenerate types with `npm run db:types` after a migration.
 - `supabase/`: `migrations/` (schema, RLS, driver functions, cron) and `seed.sql` (Tarlac City routes, stops, vehicles). Clients select explicit `vehicles` columns, because `operator_id` is withheld by column grants.

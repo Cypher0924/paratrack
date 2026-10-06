@@ -23,10 +23,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Lint and build
-        run: npx turbo run lint build
-      - name: Typecheck native
-        run: npx tsc --noEmit -p apps/native
       - name: Start Supabase
         run: npx supabase start -x studio,imgproxy,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
       - name: Write local env
@@ -36,6 +32,11 @@ jobs:
           --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
           --override-name auth.secret_key=SUPABASE_SECRET_KEY
           > apps/web/.env.local
+      # After the env file, because Next inlines NEXT_PUBLIC_* at build time.
+      - name: Lint and build
+        run: npx turbo run lint build
+      - name: Typecheck native
+        run: npx tsc --noEmit -p apps/native
       - name: Vitest
         run: npm test
       - name: Install Playwright browsers
@@ -47,4 +48,11 @@ jobs:
         with:
           name: playwright-report
           path: apps/web/playwright-report
+          retention-days: 7
+      # Specs plus any snapshots Playwright wrote for missing baselines (the Linux baselines to commit)
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-e2e
+          path: apps/web/e2e
           retention-days: 7

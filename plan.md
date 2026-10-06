@@ -35,7 +35,7 @@ Why CI-only: Vitest and Playwright need a running Postgres, Auth and Realtime to
 |---|---|
 | Web | Next.js 16 App Router, react-native-web, PWA via `app/manifest.ts` + hand-written `public/sw.js` |
 | Android | Expo SDK 55, expo-router, dev build (no Expo Go, native modules needed) |
-| Map | MapLibre on both: `maplibre-gl` (web), `@maplibre/maplibre-react-native` (Android). OpenFreeMap tiles (free, no key). One style JSON recolored with the Figma map tokens |
+| Map | Google Maps (user decision 2026-10-05). Web: Maps JavaScript API via `@vis.gl/react-google-maps`, Advanced Markers, and a Map ID (needed for Advanced Markers). Android: `react-native-maps` with the Google provider. Both use Google's default map style (user decision 2026-10-05). Two API keys: a browser key restricted to the app's domains, and an Android key restricted to `com.paratrack.app` + the signing SHA-1. Needs a Google Cloud billing account. Web gets about 10,000 free map loads a month, Android maps are free |
 | Icons / font | `phosphor-react-native` (Figma uses Phosphor names), Inter |
 | Components | React Native Reusables copied into `@repo/ui` with its CLI, styled with NativeWind (Tailwind for React Native) using the Figma tokens |
 | Animation | Reanimated 4 (ships with Expo SDK 55). Its CSS-style transitions and entering/exiting animations work on Android and web. Moti only if Reanimated's API falls short |
@@ -115,7 +115,7 @@ Push sending lives in `apps/web/lib/push.ts`. Dead targets (410 or DeviceNotRegi
 
 Commuter
 - Welcome, then location permission (02). "Choose my stop instead" opens a stop picker. The commuter's location never leaves the device, which keeps the "Drivers never see it" copy true. Nearby sorting and search run on the client over the small Tarlac stop list.
-- Every visitor gets an anonymous Supabase session, so tracking and alerts work as a guest. The phone number links to that session (`updateUser({ phone })` + OTP). Exactly when the number is asked follows the final Figma flow.
+- Phone login comes before Home (user decision 2026-10-05): Welcome, then Location, then Mobile number, then the code, then Home. Until real SMS (Semaphore) is enabled, only the test numbers can log in. Anonymous sign-in stays enabled in Supabase but the app doesn't use it. Phase 12 turns it off.
 - Home (06) lists online vehicles by ETA to the nearest stop on their route, filtered by type. Markers show a seat tag plus ring color: green, yellow (5 or fewer seats left), red (full).
 - Search (07) matches stops by name. Results are routes serving both stops in the right order, with the next vehicle that still has seats.
 - Route (08), Vehicle (09), Fare breakdown (10), Tracking (11), On board (12) with a stop timeline and the Para alert.
@@ -207,7 +207,7 @@ Details in `docs/spikes/web-ui.md`, `native.md` and `push.md`. The spike code st
 | Same shared UI on Android | Yes (Infinix X669, Android 12) |
 | MapLibre on Expo SDK 55 with OpenFreeMap tiles | Yes |
 | Web push on Android to the installed web app, app closed | Yes, with the ParaTrack name, app icon, status-bar icon and badge |
-| Android background location every ~5 s with the screen off | Pending. The crash cause is found and fixed (below). Needs an uninstall, restart and reinstall retest |
+| Android background location every ~5 s with the screen off | Yes (2026-10-05, after uninstall, restart, reinstall). 157 fixes in 15 min, 9 min locked, median 5 s, largest gap 25 s, every network check 200. Indoor fixes jumped up to ~700 m |
 | Web push on iPhone | Pending a borrowed iPhone. The test page must be public first, because iPhone home-screen apps don't share Safari's Vercel login cookie |
 
 Carried into later phases:
@@ -215,9 +215,9 @@ Carried into later phases:
 - **`@repo/ui`:** consumed from source (no tsup build). `CLAUDE.md` gets updated when this lands in Phase 4.
 - **Web setup (Phase 4):** `transpilePackages` for the React Native packages, a `__DEV__` define, `react-native-safe-area-context` stubbed in both bundlers (real screens use CSS `env(safe-area-inset-*)` instead), `jsxImportSource: "nativewind"`, and `cssInterop(Animated.createAnimatedComponent(View), { className: "style" })` for animated components.
 - **Native setup (Phase 4):** NativeWind's Babel preset, `withNativeWind` in Metro, and `global.css` loaded in the root layout.
-- **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen.
+- **Driver location (Phase 7):** `app.json` must declare `android.permission.RECEIVE_BOOT_COMPLETED`, or `expo-task-manager` crashes on the first location fix. Pin it with a repo-config test. Android remembers a missing permission until the phone restarts, so the first public APK must already include it. Define the background task in a module loaded at app start, not a screen. Drop fixes with poor accuracy before `driver_ping` (indoor fixes jumped ~700 m on the test phone).
 - **Push (Phase 8):** the manifest `scope` must contain the service worker scope (`"/"`), or Chrome shows notifications as website notifications with an Unsubscribe button. Notifications need a white-on-transparent `badge` image (`assets/brand/notification-icon.svg`). The send endpoint must require login. One VAPID key pair serves every Vercel environment.
-- **Map provider:** choose before Phase 6, either MapLibre (free, only an ⓘ credit) or Mapbox (calmer data at city zoom, logo required, token). Both take the Figma map colors.
+- **Map provider:** Google Maps (decided 2026-10-05, replacing the MapLibre spike). The map keeps Google's default style. The Google logo and the "Map data" credit must stay visible.
 - **Tooling:** use `npx eas-cli@latest` (plain `npx eas-cli` picks a cached 22.6, which is too old). `adb` is installed. Android 12 Wireless debugging works for logs without a USB cable.
 - **Phase 12:** the APK also requests storage and draw-over-apps permissions it doesn't use. Block them with `android.blockedPermissions`.
 

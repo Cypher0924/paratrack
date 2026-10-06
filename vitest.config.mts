@@ -10,5 +10,7 @@ export default defineConfig(({ mode }) => ({
     ],
     env: { ...loadEnv(mode, "apps/web", ""), ...loadEnv(mode, ".", "SUPABASE_") },
     testTimeout: 20_000,
+    // Integration files share one database: online test vehicles and announcement fan-out leak between files.
+    fileParallelism: false,
   },
 }));
