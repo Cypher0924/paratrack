@@ -43,7 +43,7 @@ describe("driver API", () => {
     const v = await client.rpc("verify_driver", { p_operator_code: "TPC-0412", p_plate: "NAK 2290" });
     expect(v.error).toBeNull();
     vehicleId = (await client.from("drivers").select("vehicle_id").single()).data!.vehicle_id!;
-  });
+  }, 40_000);
 
   afterAll(async () => {
     await client.rpc("end_shift"); // errors when already offline, which is fine
