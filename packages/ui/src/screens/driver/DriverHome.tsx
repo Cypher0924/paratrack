@@ -6,6 +6,7 @@ import { PathIcon } from "phosphor-react-native/src/icons/Path";
 import { PowerIcon } from "phosphor-react-native/src/icons/Power";
 import { UsersIcon } from "phosphor-react-native/src/icons/Users";
 import { useEffect, useMemo, useState } from "react";
+import { setAppMode } from "../../data/mode";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Badge } from "../../components/Badge";
 import { Banner } from "../../components/Banner";
@@ -34,6 +35,7 @@ const commuters = (n: number) => (n === 1 ? "1 commuter is" : `${n} commuters ar
 /** Figma 15 Start shift, 16 Online, 17 Go offline confirm, 18 Marked full, 19 Full. */
 export function DriverHome() {
   const nav = useNav();
+  useEffect(() => setAppMode("driver"), []);
   const s = useShift();
   const [confirm, setConfirm] = useState(false);
   const [undo, setUndo] = useState(false);

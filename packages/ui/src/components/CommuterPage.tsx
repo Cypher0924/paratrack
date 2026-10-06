@@ -7,6 +7,7 @@ import { DesktopShell, SHELL } from "./DesktopShell";
 import { MapBackdrop } from "./MapBackdrop";
 import { Page } from "./Page";
 import { TabBar, type Tab } from "./TabBar";
+import { useAppMode } from "../data/mode";
 
 /**
  * Page for commuter list and form screens. Phones get the page with the tab bar under it (when
@@ -30,6 +31,7 @@ export function CommuterPage({
 }) {
   const wide = useIsWide();
   const nav = useNav();
+  const mode = useAppMode();
   if (wide) {
     return (
       <View className="h-full w-full flex-1 bg-surface-muted">
@@ -41,7 +43,7 @@ export function CommuterPage({
   return (
     <Page className={className}>
       {children}
-      {tab && <TabBar active={tab} unread={unread} onSelect={(t) => t !== tab && nav.replace(tabPath[t])} />}
+      {tab && <TabBar variant={mode} active={tab} unread={unread} onSelect={(t) => t !== tab && nav.replace(tabPath[t])} />}
     </Page>
   );
 }

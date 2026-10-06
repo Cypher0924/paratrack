@@ -15,6 +15,7 @@ import { useSaved } from "../../data/saved";
 import { useNav } from "../../lib/nav";
 import { usePushOnTap } from "../../lib/push-toggle";
 import { useSessionGuard } from "../../lib/session";
+import { setAppMode, useAppMode } from "../../data/mode";
 import { AddToHomeScreenHint } from "../../components/AddToHomeScreenHint";
 import colors from "../../theme/colors";
 
@@ -48,6 +49,7 @@ export default function Account() {
   const { ready } = useSessionGuard("in");
   const { user, signOut } = useSession();
   const pushOn = usePushOnTap();
+  const mode = useAppMode();
   const { profile, update } = useProfile();
   const { unreadCount } = useNotifications();
   const { places, routeIds } = useSaved();
@@ -120,7 +122,18 @@ export default function Account() {
         </View>
 
         <View>
-          <SettingsRow title="Switch to driver mode" icon={SteeringWheelIcon} onPress={() => nav.push("/driver/verify")} />
+          {mode === "driver" ? (
+            <SettingsRow
+              title="Switch to commuter mode"
+              icon={SteeringWheelIcon}
+              onPress={() => {
+                setAppMode("commuter");
+                nav.replace("/home");
+              }}
+            />
+          ) : (
+            <SettingsRow title="Switch to driver mode" icon={SteeringWheelIcon} onPress={() => nav.push("/driver/verify")} />
+          )}
           <Pressable
             role="button"
             onPress={async () => {

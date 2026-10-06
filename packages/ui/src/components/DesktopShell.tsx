@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { MapTrifoldIcon } from "phosphor-react-native/src/icons/MapTrifold";
+import { SteeringWheelIcon } from "phosphor-react-native/src/icons/SteeringWheel";
+import { useAppMode } from "../data/mode";
 import { UserCircleIcon } from "phosphor-react-native/src/icons/UserCircle";
 import { useNotifications, useProfile } from "../data/hooks";
 import { cn } from "../lib/cn";
@@ -15,8 +17,11 @@ import type { Tab } from "./TabBar";
 /** Figma Desktop/Nav rail (72) and the panel next to it (400). */
 export const SHELL = 72 + 400;
 
-const items = [
-  { key: "map", label: "Map", Icon: MapTrifoldIcon },
+const first = {
+  commuter: { key: "map", label: "Map", Icon: MapTrifoldIcon },
+  driver: { key: "drive", label: "Drive", Icon: SteeringWheelIcon },
+} as const;
+const rest = [
   { key: "alerts", label: "Alerts", Icon: BellIcon },
   { key: "account", label: "Account", Icon: UserCircleIcon },
 ] as const;
@@ -26,6 +31,7 @@ function NavRail({ active }: { active: Tab }) {
   const nav = useNav();
   const { unreadCount } = useNotifications();
   const { profile } = useProfile();
+  const items = [first[useAppMode()], ...rest];
   return (
     <View accessibilityRole="tablist" className="h-full w-[72px] items-center gap-2 border-r border-border-subtle bg-surface pb-5 pt-4">
       <View className="h-[40px] items-center justify-center pb-3">
