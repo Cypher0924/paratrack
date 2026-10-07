@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 const sql = readFileSync(fileURLToPath(new URL('../supabase/seed.sql', import.meta.url)), 'utf8');
 const R = 6371008.8;
 const rad = Math.PI / 180;
-const BOX = { latMin: 15.4, latMax: 15.56, lngMin: 120.52, lngMax: 120.68 };
+// Tarlac province plus Cabanatuan.
+const BOX = { latMin: 15.2, latMax: 15.85, lngMin: 120.3, lngMax: 121.05 };
 const TOL_M = 60;
 
 const hav = (a, b) => {
@@ -58,33 +59,30 @@ for (const m of sql.matchAll(/\('([^']+)', '([^']+)', (\d+), ([\d.]+)\) \/\* (ou
   else r.stops.push({ stopId: m[2], seq: Number(m[3]), offset: Number(m[4]), leg: m[5] });
 }
 
-if (routes.size !== 5) fail(`expected 5 routes, found ${routes.size}`);
-const expectRoutes = {
-  'Downtown-SM': ['ejeep', 15, 4, 2.2], 'Capitol-SM': ['ejeep', 15, 4, 2.2],
-  'San Nicolas-Downtown': ['jeep', 13, 4, 1.8], 'Tarlac-Clark': ['bus', 25, 5, 2.2], 'Campus Loop': ['shuttle', 10, 0, 0],
-};
+if (routes.size !== 7) fail(`expected 7 routes, found ${routes.size}`);
+const expectRoutes = Object.fromEntries(
+  ['Tarlac-Bamban via Capas', 'Tarlac-Cabanatuan via La Paz', 'Tarlac-Gerona', 'Tarlac-La Paz', 'Tarlac-Moncada', 'Tarlac-Paniqui via Gerona', 'Tarlac-San Manuel'].map((n) => [n, ['modern', 17, 4, 2.4]]),
+);
 const summary = [];
 for (const r of routes.values()) {
   const tag = r.name;
   const exp = expectRoutes[r.name];
   if (!exp || exp[0] !== r.type || exp.slice(1).some((v, i) => v !== r.fare[i])) fail(`${tag}: type or fare differs from the plan`);
   const n = r.line.length;
-  if (n < 20 || n > 80) fail(`${tag}: ${n} points, want 20-80`);
+  if (n < 20 || n > 160) fail(`${tag}: ${n} points, want 20-160`);
   const [f, l] = [r.line[0], r.line.at(-1)];
   if (f[0] !== l[0] || f[1] !== l[1]) fail(`${tag}: first and last point differ`);
   const len = length(r.line);
   if (Math.abs(len - r.lengthM) > len * 0.005) fail(`${tag}: length_m ${r.lengthM} vs computed ${len.toFixed(1)}`);
-  if (r.name !== 'Tarlac-Clark') {
-    for (const [lng, lat] of r.line) {
-      if (lat < BOX.latMin || lat > BOX.latMax || lng < BOX.lngMin || lng > BOX.lngMax) { fail(`${tag}: point ${lng},${lat} outside bbox`); break; }
-    }
+  for (const [lng, lat] of r.line) {
+    if (lat < BOX.latMin || lat > BOX.latMax || lng < BOX.lngMin || lng > BOX.lngMax) { fail(`${tag}: point ${lng},${lat} outside bbox`); break; }
   }
   const legs = { out: r.line.slice(0, r.turn + 1), back: r.line.slice(r.turn) };
   const legStart = { out: 0, back: length(legs.out) };
   let prev = -1;
   let prevSeq = 0;
   let lastLeg = 'out';
-  if (r.stops.length < 3 || r.stops.length > 8) fail(`${tag}: ${r.stops.length} stops, want 3-8`);
+  if (r.stops.length < 3 || r.stops.length > 12) fail(`${tag}: ${r.stops.length} stops, want 3-12`);
   for (const s of r.stops) {
     const st = stops.get(s.stopId);
     const id = `${tag} #${s.seq} ${st?.name}`;
@@ -109,13 +107,13 @@ for (const r of routes.values()) {
 
 const vehicleSql = sql.slice(sql.indexOf('insert into public.vehicles'), sql.indexOf('insert into public.vehicle_live'));
 const vehicles = [...vehicleSql.matchAll(/\('[^']+', '[^']+', '[^']+', '([^']+)', '([^']+)', (\d+)\)/g)].map((m) => ({ label: m[1], plate: m[2], cap: Number(m[3]) }));
-const expectedLabels = { 'E-jeep 18': 20, 'E-jeep 07': 20, 'E-jeep 12': 20, 'Jeep 03': 16, 'Jeep 05': 16, 'Bus 2': 45, 'Shuttle 04': 14, 'Shuttle 01': 14 };
-if (vehicles.length !== 8) fail(`expected 8 vehicles, found ${vehicles.length}`);
+if (vehicles.length !== 16) fail(`expected 16 vehicles, found ${vehicles.length}`);
 if (new Set(vehicles.map((v) => v.plate)).size !== vehicles.length) fail('duplicate plates');
-if (vehicles.map((v) => v.label).sort().join('|') !== Object.keys(expectedLabels).sort().join('|')) fail('vehicle labels differ from the plan');
-for (const v of vehicles) if (expectedLabels[v.label] !== v.cap) fail(`${v.label}: capacity ${v.cap}`);
-const plateOf = (label) => vehicles.find((v) => v.label === label)?.plate;
-if (plateOf('E-jeep 18') !== 'NBC 4821' || plateOf('E-jeep 07') !== 'NAK 2290') fail('Figma plates missing');
+if (new Set(vehicles.map((v) => v.label)).size !== vehicles.length) fail('duplicate labels');
+for (const v of vehicles) {
+  if (!/^[A-Z]{3} \d{4}$/.test(v.plate)) fail(`${v.label}: plate ${v.plate} is not AAA 0000`);
+  if (v.cap !== 22) fail(`${v.label}: capacity ${v.cap}`);
+}
 
 console.log(summary.join('\n'));
 console.log(`${stops.size} stops, ${vehicles.length} vehicles`);

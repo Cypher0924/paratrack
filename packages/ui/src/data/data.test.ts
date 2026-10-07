@@ -22,9 +22,9 @@ const newClient = (): Client =>
 describe("public reads (seeded Tarlac data)", () => {
   const client = newClient();
 
-  it("returns all 8 vehicles with explicit columns and no operator_id", async () => {
+  it("returns all 16 vehicles with explicit columns and no operator_id", async () => {
     const vehicles = await fetchLiveVehicles(client);
-    expect(vehicles).toHaveLength(8);
+    expect(vehicles).toHaveLength(16);
     for (const v of vehicles) {
       expect(Object.keys(v).sort()).toEqual([...VEHICLE_COLUMNS.split(", "), "live"].sort());
       expect(v.live).not.toBeNull();
@@ -32,11 +32,11 @@ describe("public reads (seeded Tarlac data)", () => {
     }
   });
 
-  it("loads routes with paths, 29 stops and ordered route stops", async () => {
+  it("loads routes with paths, 27 stops and ordered route stops", async () => {
     const [routes, stops, routeStops] = await Promise.all([fetchRoutes(client), fetchStops(client), fetchRouteStops(client)]);
-    expect(routes).toHaveLength(5);
+    expect(routes).toHaveLength(7);
     expect(routes.every((r) => r.path.length > 1)).toBe(true);
-    expect(stops).toHaveLength(29);
+    expect(stops).toHaveLength(27);
     expect(stops.every((s) => s.lat > 15 && s.lat < 16 && s.lng > 120 && s.lng < 121)).toBe(true);
     expect(routeStops.length).toBeGreaterThan(0);
   });

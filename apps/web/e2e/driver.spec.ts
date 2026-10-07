@@ -3,8 +3,8 @@ import { signIn } from "./support/auth";
 
 // Each project uses its own number and vehicle so the two can run in parallel.
 const drivers = {
-  iphone: { phone: "+639000000016", code: "TPC-0412", plate: "TCA 7742", capacity: 16 },
-  pixel: { phone: "+639000000019", code: "CSS-1001", plate: "NDF 1089", capacity: 14 },
+  iphone: { phone: "+639000000016", code: "TMP-5826", plate: "TMC 7413", capacity: 22 },
+  pixel: { phone: "+639000000019", code: "NTM-6409", plate: "NSM 6236", capacity: 22 },
 } as const;
 
 test("driver starts a shift, counts passengers, marks full, goes offline", async ({ browser, baseURL }, testInfo) => {
