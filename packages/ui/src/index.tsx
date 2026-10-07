@@ -46,6 +46,7 @@ export * from "./data/origin";
 export * from "./data/saved";
 export * from "./data/search";
 export * from "./lib/push";
+export { PushPrimer } from "./components/PushPrimer";
 export * from "./components/AddToHomeScreenHint";
 export * from "./screens/driver";
 export * from "./data/shift";

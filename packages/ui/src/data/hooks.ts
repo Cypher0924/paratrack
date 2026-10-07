@@ -5,7 +5,7 @@ import { useOnline } from "../lib/online";
 import { checkCode, fetchProfile, sendCode, updateProfile } from "./auth";
 import { useCached } from "./cache";
 import { computeFare, computeNearby } from "./compute";
-import { fetchNotifications, markAllRead as markAllReadQuery, unreadCount } from "./notifications";
+import { fetchNotifications, markAllRead as markAllReadQuery, markRead as markReadQuery, unreadCount } from "./notifications";
 import { fetchLiveVehicles, fetchRouteStops, fetchRoutes, fetchStops, mergeLive } from "./queries";
 import { endTrip as endTripQuery, fetchActiveTrips, fetchTrip, fetchTripHistory, saveFeedback, setOnboard as setOnboardQuery, setTripAlerts as setTripAlertsQuery, startTrip as startTripQuery } from "./trips";
 import type { AppNotification, FareType, LiveVehicle, Profile, ProfilePatch, Trip, VehicleLive } from "./types";
@@ -183,7 +183,12 @@ export const useNotifications = () => {
     const now = new Date().toISOString();
     setItems((n) => n.map((x) => (x.read_at ? x : { ...x, read_at: now })));
   }, []);
-  return { notifications: items, unreadCount: unreadCount(items), markAllRead };
+  const markRead = useCallback(async (id: number) => {
+    await markReadQuery(supabase, id);
+    const now = new Date().toISOString();
+    setItems((n) => n.map((x) => (x.id === id && !x.read_at ? { ...x, read_at: now } : x)));
+  }, []);
+  return { notifications: items, unreadCount: unreadCount(items), markAllRead, markRead };
 };
 
 export const useFare = (routeId: string, fromStopId: string, toStopId: string, fareType: FareType) => {

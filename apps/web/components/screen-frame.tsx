@@ -2,6 +2,7 @@
 
 import { Suspense, type ReactNode } from "react";
 import { useSession } from "@repo/ui/src/data/hooks";
+import { PushPrimer } from "@repo/ui/src/components/PushPrimer";
 import Splash from "@repo/ui/src/screens/states/Splash";
 
 /**
@@ -20,6 +21,7 @@ export function ScreenFrame({ children }: { children: ReactNode }) {
     <main className="flex h-[100dvh] w-full justify-center bg-surface-muted">
       <div className="relative h-full w-full max-w-[390px] overflow-hidden md:max-w-none bg-background">
         <Suspense fallback={null}>{children}</Suspense>
+        <PushPrimer />
         {loading && <Splash />}
       </div>
     </main>

@@ -8,6 +8,8 @@ import { Button } from "../../components/Button";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { StatusDisc } from "../../components/StatusDisc";
 import { useNotifications } from "../../data/hooks";
+import { announcementIdOf } from "../../data/notifications";
+import { useNav } from "../../lib/nav";
 import type { AppNotification } from "../../data/types";
 import { useSessionGuard } from "../../lib/session";
 
@@ -17,7 +19,7 @@ const filters = [
   { value: "service", label: "Service" },
 ] as const;
 
-function Group({ title, items, now }: { title: string; items: AppNotification[]; now: Date }) {
+function Group({ title, items, now, onOpen }: { title: string; items: AppNotification[]; now: Date; onOpen: (n: AppNotification) => void }) {
   if (items.length === 0) return null;
   return (
     <View>
@@ -31,6 +33,7 @@ function Group({ title, items, now }: { title: string; items: AppNotification[];
           body={n.body ?? ""}
           time={timeAgo(new Date(n.created_at), now)}
           unread={n.read_at === null}
+          onPress={announcementIdOf(n) === null ? undefined : () => onOpen(n)}
         />
       ))}
     </View>
@@ -40,7 +43,12 @@ function Group({ title, items, now }: { title: string; items: AppNotification[];
 /** Figma 13 Alerts. */
 export default function Alerts() {
   const { ready } = useSessionGuard("in");
-  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { notifications, unreadCount, markAllRead, markRead } = useNotifications();
+  const nav = useNav();
+  const open = (n: AppNotification) => {
+    void markRead(n.id).catch(() => undefined);
+    nav.push(`/alerts/${announcementIdOf(n)}`);
+  };
   const [filter, setFilter] = useState<(typeof filters)[number]["value"]>("all");
   const now = new Date();
   const { today, earlier } = useMemo(
@@ -68,8 +76,8 @@ export default function Alerts() {
           </View>
         ) : (
           <>
-            <Group title="Today" items={today} now={now} />
-            <Group title="Earlier" items={earlier} now={now} />
+            <Group title="Today" items={today} now={now} onOpen={open} />
+            <Group title="Earlier" items={earlier} now={now} onOpen={open} />
           </>
         )}
       </ScrollView>
