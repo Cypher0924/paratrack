@@ -23,10 +23,10 @@ const call = (handler: (r: Request) => Promise<Response>, path: string, body: un
     }),
   );
 
-// A point on the Downtown-SM route (first vertex of the seeded line).
-const fix = { lat: 15.489709, lng: 120.592027, speed: 4, heading: 90, accuracy: 8 };
+// A point on the Tarlac-Paniqui route (first vertex of the seeded line).
+const fix = { lat: 15.496054, lng: 120.593772, speed: 4, heading: 90, accuracy: 8 };
 
-// +639000000017 on TPC-0412 NAK 2290: no other test, spec or the simulator uses this vehicle.
+// +639000000017 on NTM-6409 NPQ 8801: no other test, spec or the simulator uses this vehicle.
 describe("driver API", () => {
   let token = "";
   let vehicleId = "";
@@ -40,7 +40,7 @@ describe("driver API", () => {
     const { data, error } = await client.auth.verifyOtp({ phone, token: need("SUPABASE_AUTH_TEST_OTP"), type: "sms" });
     expect(error).toBeNull();
     token = data.session!.access_token;
-    const v = await client.rpc("verify_driver", { p_operator_code: "TPC-0412", p_plate: "NAK 2290" });
+    const v = await client.rpc("verify_driver", { p_operator_code: "NTM-6409", p_plate: "NPQ 8801" });
     expect(v.error).toBeNull();
     vehicleId = (await client.from("drivers").select("vehicle_id").single()).data!.vehicle_id!;
   }, 40_000);

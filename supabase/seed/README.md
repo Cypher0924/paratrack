@@ -1,42 +1,43 @@
-# Tarlac City seed
+# Tarlac seed
 
-`supabase/seed.sql` seeds 3 operators, 5 routes, 29 stops, 8 vehicles, offline `vehicle_live` rows and 1 announcement. It is idempotent (fixed UUIDs, `on conflict do nothing`). Operator codes are dev-only demo values. Check it with `node scripts/check-seed.mjs` (Node built-ins only).
+`supabase/seed.sql` seeds 3 operators, 7 modern jeepney (modern PUJ) routes from the Tarlac City terminal, 27 stops, 16 vehicles, offline `vehicle_live` rows and 1 announcement. It is idempotent (fixed UUIDs `a1/b1/c1/d1`, `on conflict do nothing`). Check it with `node scripts/check-seed.mjs` (Node built-ins only).
+
+The previous invented seed (Downtown-SM, Capitol-SM and others, UUIDs `a0/b0/c0/d0`) is removed by `supabase/seed/replace-2026-10-07.sql`. Run that once per database before this seed. It only touches the old ids.
+
+## Routes
+
+Research: local transport inside the city is mostly tricycles. Modern PUJ routes are registered from Tarlac City, with these unit counts:
+
+| Route | Units | Stops (out leg) |
+|---|---|---|
+| Tarlac-Bamban via Capas | 35 | Tarlac Terminal, Robinsons Supermarket, San Rafael Barangay Hall, Capas, Bamban Municipal Hall |
+| Tarlac-Cabanatuan via La Paz | 40 | Tarlac Terminal, Metro Town Mall, Maliwalo Barangay Hall, Amucao Multipurpose Hall, La Paz Municipal Hall, Zaragoza, Santa Rosa, Cabanatuan Central Terminal |
+| Tarlac-Gerona | 15 | Tarlac Terminal, Salapungan Barangay Hall, Parsolingan, Gerona Municipal Hall |
+| Tarlac-La Paz | 10 | Tarlac Terminal, Metro Town Mall, Maliwalo Barangay Hall, Amucao Multipurpose Hall, La Paz Municipal Hall |
+| Tarlac-Moncada | 13 | Tarlac Terminal, Salapungan Barangay Hall, Parsolingan, Moncada Public Plaza |
+| Tarlac-Paniqui via Gerona | 18 | Tarlac Terminal, Salapungan Barangay Hall, Parsolingan, Gerona Municipal Hall, Paniqui Town Hall |
+| Tarlac-San Manuel | 17 | Tarlac Terminal, Salapungan Barangay Hall, Parsolingan, San Manuel |
+
+Each route also has 2 or 3 `(return)` stops on the back leg. Fare is the LTFRB modern jeepney fare: PHP 17 for the first 4 km, PHP 2.40 per succeeding km (`base_fare 17, base_km 4, per_km 2.40`). Discounts stay in `packages/core`.
 
 ## How the geometry was made
 
-All coordinates come from OpenStreetMap (ODbL), not hand-drawn.
+All coordinates come from OpenStreetMap (ODbL).
 
-1. Place coordinates (SM City Tarlac, Provincial Capitol, City Hall, public market, TSU, bus terminals, barangays) came from one Overpass query over the Tarlac City bounding box:
+1. Places came from Overpass queries. The origin is the OSM way "Tarlac City Transport Terminal" (`amenity=bus_station`, network `PUB;PUJ`, San Nicolas), shared by all 7 routes. Destinations are the OSM town hall or plaza: Bamban, Gerona, La Paz and Paniqui town halls, Moncada Public Plaza and the Cabanatuan City Central Terminal. In-city stops are OSM places within 60 m of the routed path, taken from one bbox query (`15.38,120.50,15.57,120.75`) for named amenities, shops, parks, places and tourism, then filtered by distance to each path.
+2. Street-following paths came from the public OSRM demo server (`router.project-osrm.org/route/v1/driving`, `overview=full&geometries=geojson`). Each route is an out leg through the named towns (Capas for Bamban, La Paz, Zaragoza and Santa Rosa for Cabanatuan, Gerona for Paniqui) and a separate back leg with reversed waypoints, so one-way streets give a different back path. Town waypoints are OSM town halls where mapped, otherwise the Nominatim town center (Capas, Zaragoza, Santa Rosa).
+3. The legs were joined (back start = out end, last point = first point exactly) and simplified with Douglas-Peucker. The tolerance per route is the smallest whole-meter value that keeps the loop at 150 points or fewer: 3 m for Gerona and La Paz up to 16 m for Cabanatuan.
+4. `offset_m` is the haversine distance along the line to the stop's projection on its own leg. Back leg stops (marked `/* back */`) come after the turn. The `turn=N` comment on each route is the vertex index where the back leg starts. Stops keep their real OSM coordinates, so they sit up to 57 m from the simplified line (the check allows 60 m).
+5. Headway = round trip time / unit count, where round trip time is 2 x route length at 25 km/h, with a 5 min minimum. Result: Bamban 5, Cabanatuan 6, Gerona 5, La Paz 9, Moncada 11, Paniqui 6, San Manuel 10. It assumes every registered unit runs at once, so real headways are likely longer.
 
-   ```
-   [out:json][timeout:60][bbox:15.40,120.52,15.56,120.68];
-   (
-   nwr["name"~"SM City Tarlac|Metrotown|Provincial Capitol|Tarlac State University|City Hall|Robinsons|Public Market|Tarlac Capitol",i];
-   way["highway"]["name"~"Romulo|MacArthur|Zamora|Rizal|Tañedo|Burgos|Aguinaldo",i];
-   );
-   out center tags qt;
-   ```
+## Approximate or placeholder
 
-   A second query listed `place`, terminal, gate, San Nicolas and Capitol names in the same bbox. Nominatim was used to confirm City Hall.
-2. Street-following paths came from the public OSRM demo server (`router.project-osrm.org/route/v1/driving`, OSM data, `overview=full&geometries=geojson`), one request per leg. Each route is an outbound leg through a few waypoints and a separate return leg, so one-way streets give a different return path.
-3. The two legs were joined (return start = outbound end, last point = first point exactly) and each leg was simplified with Douglas-Peucker. The tolerance is the smallest value that keeps the loop at 75 points or fewer: 1 to 2 m for the short routes and 9 m for Tarlac-Clark.
-4. Stops sit on the simplified line. `offset_m` is the haversine distance along the line from the start to the stop's projection on its own leg. Return-leg stops (marked `/* back */`) therefore have larger offsets than every outbound stop. The `turn=N` comment on each route is the vertex index where the return leg starts, and the check script uses it.
-
-Waypoints (lng,lat) per leg:
-
-| Route | Out | Back |
-|---|---|---|
-| Downtown-SM | 120.5918,15.4895 > 120.5946,15.4776 | reverse |
-| Capitol-SM | 120.5880,15.4803 > 120.5863,15.4863 > 120.5946,15.4776 | 120.5946,15.4776 > 120.5880,15.4803 |
-| San Nicolas-Downtown | 120.5953,15.4925 > 120.5899,15.4869 > 120.5925,15.4823 | 120.5925,15.4823 > 120.5953,15.4925 |
-| Tarlac-Clark | 120.5937,15.4963 > 120.5990,15.4045 | reverse |
-| Campus Loop | 120.5873,15.4852 > 120.5880,15.4803 > 120.5869,15.4783 | 120.5869,15.4783 > 120.5873,15.4852 |
-
-## Judgment calls
-
-- Metrotown was not found in OSM (Overpass and Nominatim). Its stop is a placeholder on MacArthur Hwy, about 35% along the outbound leg. Move it once the real location is known.
-- Stops named by fraction along a leg (Burgos St, Juan Luna St, MacArthur Hwy, San Miguel and others) take their name from the OSRM street at that spot. Stops with an explicit place (SM City, Capitol, City Hall, Main Gate, Rizal Ave, San Nicolas, Tarlac Terminal) use the OSM place location snapped to the line.
-- `route_stops` has `unique(route_id, stop_id)`, so a stop cannot serve both legs. Return-leg stops are different stops (for example `Metrotown (return)`).
-- Tarlac-Clark turns around at about 15.4045, 120.599 on MacArthur Hwy, at the city's southern edge. It is the only route exempt from the bbox check.
-- Fares and headways are the plan's values. Plates other than `NBC 4821` and `NAK 2290` are invented placeholders.
+- In-city streets are OSRM's driving path. No source gives the actual streets or stops, so every path and stop position is approximate. Correct them with rider and driver knowledge.
+- Stops are landmarks the path passes, not confirmed loading points. Capas, Zaragoza and Santa Rosa are Nominatim town centers.
+- "San Manuel" has no mapped town hall or plaza in OSM. Its point is on MacArthur Hwy at the OSM San Manuel Municipal Police Station.
+- The terminal point is the OSM way center, about 25 m from the routed road.
+- Operators: only "Zaragoza Ramstar Transport Service Cooperative" (Cabanatuan) is a known real name. "Tarlac Modern PUJ Cooperative" and "Northern Tarlac Modern PUJ Cooperative" are placeholders. Operator codes (`TMP-5826`, `ZRM-3174`, `NTM-6409`) are dev demo values.
+- Vehicles are 2 or 3 per route, labeled `<Town> NN`, capacity 22, with invented plates.
+- The announcement ("Last Cabanatuan trip leaves at 8:00 PM") is a placeholder.
 - `routes.length_m` is recomputed by the migration trigger. The seed value is a spherical haversine sum.
+- `route_stops` has `unique(route_id, stop_id)`, so back leg stops are separate stops named `... (return)`.

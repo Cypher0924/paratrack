@@ -5,7 +5,7 @@ import { Text, View } from "react-native";
 import { BusIcon } from "phosphor-react-native/src/icons/Bus";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
 import { WifiSlashIcon } from "phosphor-react-native/src/icons/WifiSlash";
-import { useNearby, useNotifications } from "../../data/hooks";
+import { useNearby, useNotifications, useRoutes } from "../../data/hooks";
 import type { NearbyRow } from "../../data/compute";
 import { useNav } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
@@ -23,13 +23,7 @@ import colors from "../../theme/colors";
 import { kindOf, MapPanel, marker, pointOf, seatBadge, SheetTitle, TAB_BAR, useMapInsets, useNow, useOrigin, useSheetHeights } from "./shared";
 
 type Filter = "all" | VehicleType;
-const filters: { value: Filter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "shuttle", label: "Shuttle" },
-  { value: "ejeep", label: "E-jeep" },
-  { value: "bus", label: "Bus" },
-  { value: "jeep", label: "Jeep" },
-];
+const kinds = ["shuttle", "ejeep", "modern", "bus", "jeep"] as const satisfies readonly VehicleType[];
 
 function Skeleton() {
   const bar = (w: number | `${number}%`, h = 12) => <View className="rounded-pill bg-surface-muted" style={{ width: w, height: h }} />;
@@ -78,12 +72,18 @@ export default function Home() {
   const origin = useOrigin();
   const { rows, status, loading, lastUpdate } = useNearby(origin.point);
   const { unreadCount } = useNotifications();
+  const { data: routes } = useRoutes();
   const [filter, setFilter] = useState<Filter>("all");
   const [expanded, setExpanded] = useState(true);
   const now = useNow();
   const heights = useSheetHeights(150, 336);
   const insets = useMapInsets(heights[expanded ? 1 : 0] + TAB_BAR + 16);
 
+  // Only types with at least one route get a tab, and a single type needs no filter.
+  const filters = useMemo(() => {
+    const present = kinds.filter((k) => routes?.some((r) => kindOf(r) === k));
+    return present.length < 2 ? [] : [{ value: "all" as Filter, label: "All" }, ...present.map((k) => ({ value: k as Filter, label: vehicleKinds[k].label }))];
+  }, [routes]);
   const shown = useMemo(() => (filter === "all" ? rows : rows.filter((r) => kindOf(r.route) === filter)), [rows, filter]);
   const vehicles = useMemo(
     () =>
@@ -162,7 +162,7 @@ export default function Home() {
             </View>
           ) : (
             <>
-              <SegmentedControl options={filters} value={filter} onChange={setFilter} />
+              {filters.length > 0 && <SegmentedControl options={filters} value={filter} onChange={setFilter} />}
               {waiting ? (
                 <Skeleton />
               ) : shown.length === 0 ? (

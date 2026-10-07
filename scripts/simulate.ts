@@ -21,10 +21,10 @@ const TICK_MS = 4000;
 const SPEED_MPS = 9;
 
 const DEMO = [
-  { phone: "+639000000016", code: "TPC-0412", plate: "NBC 4821" },
-  { phone: "+639000000017", code: "TPC-0412", plate: "TAB 3315" },
-  { phone: "+639000000018", code: "TCB-2001", plate: "CAV 8830" },
-  { phone: "+639000000019", code: "CSS-1001", plate: "NDG 6613" },
+  { phone: "+639000000016", code: "TMP-5826", plate: "TMB 2417" },
+  { phone: "+639000000017", code: "ZRM-3174", plate: "ZRM 3351" },
+  { phone: "+639000000018", code: "NTM-6409", plate: "NPQ 5528" },
+  { phone: "+639000000019", code: "NTM-6409", plate: "NSM 1974" },
 ];
 
 type LngLat = [number, number];

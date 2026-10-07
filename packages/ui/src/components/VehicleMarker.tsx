@@ -13,6 +13,7 @@ export type VehicleType = Database["public"]["Enums"]["vehicle_type"];
 export const vehicleKinds = {
   shuttle: { label: "Shuttle", Icon: VanIcon },
   ejeep: { label: "E-jeep", Icon: JeepIcon },
+  modern: { label: "Modern jeep", Icon: JeepIcon },
   bus: { label: "Bus", Icon: BusIcon },
   jeep: { label: "Jeep", Icon: TruckIcon },
 } as const;
