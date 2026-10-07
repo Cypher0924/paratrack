@@ -1,10 +1,15 @@
 import { clockTime, etaLabel, nearestStop, stopsAway, walkMinutes } from "@repo/core";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
+import { BookmarkSimpleIcon } from "phosphor-react-native/src/icons/BookmarkSimple";
 import { PersonSimpleWalkIcon } from "phosphor-react-native/src/icons/PersonSimpleWalk";
 import { useLiveVehicles } from "../../data/hooks";
 import { useNav, useParams, useQuery } from "../../lib/nav";
 import { useSessionGuard } from "../../lib/session";
+import { IconButton } from "../../components/IconButton";
+import { Toast } from "../../components/Toast";
+import { saveRoute, unsaveRoute, useSaved } from "../../data/saved";
+import { usePushOnTap } from "../../lib/push-toggle";
 import { ArrivalRow } from "../../components/ArrivalRow";
 import { Badge } from "../../components/Badge";
 import { TransitMap } from "../../components/Map";
@@ -25,6 +30,35 @@ export default function RouteDetail() {
   const origin = useOrigin();
   const { vehicles, status } = useLiveVehicles();
   const now = useNow();
+  const { routeIds } = useSaved();
+  const pushOn = usePushOnTap();
+  const [toast, setToast] = useState<{ message: string; undo?: () => void } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(t);
+  }, [toast]);
+  const saved = routeIds.includes(id);
+  const toggleSaved = async () => {
+    try {
+      if (saved) {
+        await unsaveRoute(id);
+        setToast({ message: "Removed from saved routes." });
+      } else {
+        pushOn();
+        await saveRoute(id);
+        setToast({
+          message: `Saved. You get alerts for ${route?.name ?? "this route"}.`,
+          undo: () => {
+            setToast(null);
+            void unsaveRoute(id);
+          },
+        });
+      }
+    } catch {
+      setToast({ message: "Could not update saved routes." });
+    }
+  };
   const heights = useSheetHeights(160, 364);
   const insets = useMapInsets(heights[1] + 16);
 
@@ -77,6 +111,7 @@ export default function RouteDetail() {
             <SheetTitle caption={route ? `${kind}${route.headway_min ? ` every ${route.headway_min} min` : ""}${fares}` : undefined}>
               {route?.name ?? "Route"}
             </SheetTitle>
+            <IconButton icon={BookmarkSimpleIcon} label={saved ? "Remove from saved routes" : "Save route"} variant={saved ? "tonal" : "plain"} onPress={toggleSaved} />
             <Badge tone={status === "live" ? "live" : "neutral"} label={status === "live" ? "Live" : status === "offline" ? "Offline" : "Updating"} />
           </View>
           {yours && (
@@ -110,6 +145,7 @@ export default function RouteDetail() {
             </View>
           )}
       </MapPanel>
+      {toast && <Toast message={toast.message} action={toast.undo ? { label: "Undo", onPress: toast.undo } : undefined} />}
     </View>
   );
 }
