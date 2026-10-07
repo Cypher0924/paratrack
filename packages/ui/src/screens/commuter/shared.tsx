@@ -204,6 +204,15 @@ export const useTripContext = (tripId: string | undefined) => {
   const trips = useTrips();
   const live = useLiveVehicles();
   const trip = trips.trips.find((t) => t.id === tripId) ?? null;
+  // The server auto-ends a trip after the alight stop and nothing pushes that, so look again now and then.
+  const { refresh } = trips;
+  const open = trip !== null && trip.status !== "ended";
+  useEffect(() => {
+    if (!open || !tripId) return;
+    const t = setInterval(() => refresh(tripId).catch(() => {}), 10_000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, tripId]);
   const vehicle = live.vehicles.find((v) => v.id === trip?.vehicle_id) ?? null;
   const { route, stops, ready } = useRouteWithStops(vehicle?.route_id);
   const boardStop = stops.find((s) => s.stop.id === trip?.board_stop_id) ?? null;
