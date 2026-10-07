@@ -208,6 +208,41 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          trip_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          trip_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          trip_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       route_stops: {
         Row: {
           offset_m: number
@@ -317,14 +352,17 @@ export type Database = {
       }
       saved_routes: {
         Row: {
+          alerts: boolean
           route_id: string
           user_id: string
         }
         Insert: {
+          alerts?: boolean
           route_id: string
           user_id?: string
         }
         Update: {
+          alerts?: boolean
           route_id?: string
           user_id?: string
         }
@@ -362,7 +400,10 @@ export type Database = {
           arrival_alert: boolean
           arrival_sent_at: string | null
           board_stop_id: string | null
+          boarded_at: string | null
           created_at: string
+          ended_at: string | null
+          feedback: string[]
           full_sent_at: string | null
           id: string
           para_alert: boolean
@@ -376,7 +417,10 @@ export type Database = {
           arrival_alert?: boolean
           arrival_sent_at?: string | null
           board_stop_id?: string | null
+          boarded_at?: string | null
           created_at?: string
+          ended_at?: string | null
+          feedback?: string[]
           full_sent_at?: string | null
           id?: string
           para_alert?: boolean
@@ -390,7 +434,10 @@ export type Database = {
           arrival_alert?: boolean
           arrival_sent_at?: string | null
           board_stop_id?: string | null
+          boarded_at?: string | null
           created_at?: string
+          ended_at?: string | null
+          feedback?: string[]
           full_sent_at?: string | null
           id?: string
           para_alert?: boolean
@@ -547,7 +594,7 @@ export type Database = {
       fare_type: "regular" | "student" | "senior" | "pwd"
       notification_kind: "arrival" | "service"
       trip_status: "tracking" | "onboard" | "ended"
-      vehicle_type: "jeep" | "ejeep" | "bus" | "shuttle"
+      vehicle_type: "jeep" | "ejeep" | "bus" | "shuttle" | "modern"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -678,7 +725,7 @@ export const Constants = {
       fare_type: ["regular", "student", "senior", "pwd"],
       notification_kind: ["arrival", "service"],
       trip_status: ["tracking", "onboard", "ended"],
-      vehicle_type: ["jeep", "ejeep", "bus", "shuttle"],
+      vehicle_type: ["jeep", "ejeep", "bus", "shuttle", "modern"],
     },
   },
 } as const

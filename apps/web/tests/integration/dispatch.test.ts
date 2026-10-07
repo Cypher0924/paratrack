@@ -190,12 +190,58 @@ describe("afterOffline", () => {
 });
 
 describe("announcement trigger", () => {
-  it("creates a service notification for users with service updates on", async () => {
-    await reset();
-    const a = await ok(admin.from("announcements").insert({ route_id: routeId, title: "Detour", body: "Road work on Rizal Ave." }).select("id").single());
+  const announce = async (route_id: string | null) => {
+    const a = await ok(admin.from("announcements").insert({ route_id, title: "Detour", body: "Road work on Rizal Ave." }).select("id").single());
     announcementId = a.id;
-    const rows = (await ok(admin.from("notifications").select("kind, title, body").eq("user_id", userId).eq("data->>announcementId", String(a.id))));
+    const rows = await ok(admin.from("notifications").select("kind, title, body, data").eq("user_id", userId).eq("data->>announcementId", String(a.id)));
+    await admin.from("notifications").delete().eq("data->>announcementId", String(a.id));
+    await admin.from("announcements").delete().eq("id", a.id);
+    announcementId = 0;
+    return rows;
+  };
+  const saveRoute = (alerts: boolean) => admin.from("saved_routes").upsert({ user_id: userId, route_id: routeId, alerts });
+
+  it("sends city-wide announcements to users with service updates on", async () => {
+    await reset();
+    const rows = await announce(null);
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ kind: "service", title: "Detour", body: "Road work on Rizal Ave." });
+    expect((rows[0].data as { url: string }).url).toMatch(/^\/alerts\/\d+$/);
+  });
+
+  it("sends route announcements only to users who saved the route with alerts on", async () => {
+    await reset();
+    await admin.from("saved_routes").delete().eq("user_id", userId);
+    expect(await announce(routeId)).toHaveLength(0);
+    await ok(saveRoute(false));
+    expect(await announce(routeId)).toHaveLength(0);
+    await ok(saveRoute(true));
+    expect(await announce(routeId)).toHaveLength(1);
+    await admin.from("saved_routes").delete().eq("user_id", userId);
+  });
+});
+
+describe("trip history", () => {
+  it("stamps boarded_at and ended_at when the status changes", async () => {
+    await reset();
+    const t = await addTrip({});
+    await ok(guest.from("trips").update({ status: "onboard" }).eq("id", t.id));
+    await ok(guest.from("trips").update({ status: "ended", feedback: ["on_time", "clean"] }).eq("id", t.id));
+    const row = await ok(admin.from("trips").select("boarded_at, ended_at, feedback").eq("id", t.id).single());
+    expect(row.boarded_at).toBeTruthy();
+    expect(row.ended_at).toBeTruthy();
+    expect(row.feedback).toEqual(["on_time", "clean"]);
+    await expect(ok(guest.from("trips").update({ feedback: ["rude"] }).eq("id", t.id))).rejects.toThrow();
+  });
+
+  it("lets users report only their own trips", async () => {
+    await reset();
+    const mine = await addTrip({});
+    const other = await ok(admin.from("trips").insert({ user_id: (await ok(admin.from("profiles").select("id").neq("id", userId).limit(1).single())).id, vehicle_id: vehicleId, board_stop_id: stopIds[1], alight_stop_id: stopIds[2] }).select("id").single());
+    await ok(guest.from("reports").insert({ trip_id: mine.id, kind: "unsafe_driving", note: "Overtook on the curve" }));
+    await expect(ok(guest.from("reports").insert({ trip_id: other.id, kind: "safety" }))).rejects.toThrow();
+    const rows = await ok(guest.from("reports").select("kind, note"));
+    expect(rows).toEqual([{ kind: "unsafe_driving", note: "Overtook on the curve" }]);
+    await admin.from("trips").delete().eq("id", other.id);
   });
 });
