@@ -50,6 +50,19 @@ describe("alternativeRoutes", () => {
     ]);
     expect(alternativeRoutes(rs, "zzz")).toEqual([]);
   });
+
+  it("puts routes sharing more stops first, so a shared terminal alone ranks last", () => {
+    const hub = [
+      { routeId: "paused", seq: 1, stopId: "terminal" },
+      { routeId: "paused", seq: 2, stopId: "m" },
+      { routeId: "paused", seq: 3, stopId: "n" },
+      { routeId: "other", seq: 1, stopId: "terminal" },
+      { routeId: "same-way", seq: 1, stopId: "terminal" },
+      { routeId: "same-way", seq: 2, stopId: "m" },
+      { routeId: "same-way", seq: 3, stopId: "n" },
+    ];
+    expect(alternativeRoutes(hub, "paused").map((r) => r.routeId)).toEqual(["same-way", "other"]);
+  });
 });
 
 describe("postedLabel", () => {
