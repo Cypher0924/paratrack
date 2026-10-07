@@ -4,7 +4,7 @@ import type { Database } from "@repo/core";
 import { signIn } from "./support/auth";
 
 // +639000000011 (iphone) and +639000000012 (pixel) are reserved for these tests.
-const ROUTE = "b0000000-0000-4000-8000-000000000001"; // Downtown-SM
+const ROUTE = "b1000000-0000-4000-8000-000000000001"; // Tarlac-Bamban via Capas
 
 test.describe.configure({ mode: "serial", timeout: 60_000 });
 const expect = baseExpect.configure({ timeout: 15_000 });
@@ -37,9 +37,9 @@ test("add a place from Account", async () => {
   const save = page.getByRole("button", { name: "Save place" });
   await expect(save).toBeDisabled();
   await page.getByRole("textbox", { name: "Name" }).fill("Home");
-  await page.getByRole("textbox", { name: "Nearest stop" }).fill("SM City");
+  await page.getByRole("textbox", { name: "Nearest stop" }).fill("Robinsons");
   await expect(save).toBeDisabled();
-  await page.getByRole("button", { name: "SM City" }).click();
+  await page.getByRole("button", { name: "Robinsons Supermarket" }).click();
   await expect(save).toBeEnabled();
   await save.click();
   await expect(page).toHaveURL(/\/account\/places$/);
