@@ -107,10 +107,10 @@ test("driver verifies a vehicle after a wrong try", async ({ page }, info) => {
   await expect(page.getByText("That code and plate do not match. Check both with your operator.")).toBeVisible();
 
   // Then the seeded demo operator and vehicle.
-  await page.getByLabel("Operator code").fill("TPC-0412");
-  await page.getByLabel("Plate number").fill("NBC 4821");
+  await page.getByLabel("Operator code").fill("TMP-5826");
+  await page.getByLabel("Plate number").fill("TMB 2417");
   await page.getByRole("button", { name: "Verify vehicle" }).click();
 
-  await expect(page.getByText("Downtown-SM")).toBeVisible();
+  await expect(page.getByText("Tarlac-Bamban via Capas")).toBeVisible();
   await expect(page.getByRole("button", { name: "Go to my route" })).toBeVisible();
 });

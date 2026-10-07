@@ -28,6 +28,7 @@ export default function Onboard() {
   useEffect(() => {
     if (!loaded) return;
     if (!trip) nav.replace("/home");
+    else if (trip.status === "ended") nav.replace(`/trip/${trip.id}/done`);
     else if (trip.status === "tracking") nav.replace(`/trip/${trip.id}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, trip?.id, trip?.status]);
@@ -60,8 +61,7 @@ export default function Onboard() {
     if (!trip) return;
     setBusy(true);
     try {
-      await endTrip(trip.id);
-      nav.replace("/home");
+      await endTrip(trip.id); // the effect above then goes to the recap
     } catch {
       setBusy(false);
     }

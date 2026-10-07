@@ -2,6 +2,7 @@ import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { BookmarkIcon } from "phosphor-react-native/src/icons/Bookmark";
 import { GraduationCapIcon } from "phosphor-react-native/src/icons/GraduationCap";
 import { MapPinIcon } from "phosphor-react-native/src/icons/MapPin";
+import { ReceiptIcon } from "phosphor-react-native/src/icons/Receipt";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { SteeringWheelIcon } from "phosphor-react-native/src/icons/SteeringWheel";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
@@ -10,7 +11,7 @@ import { CommuterPage } from "../../components/CommuterPage";
 import { Avatar } from "../../components/Avatar";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { SettingsRow } from "../../components/SettingsRow";
-import { useNotifications, useProfile, useRoutes, useSession, useStops } from "../../data/hooks";
+import { useNotifications, useProfile, useSession } from "../../data/hooks";
 import { useSaved } from "../../data/saved";
 import { useNav } from "../../lib/nav";
 import { usePushOnTap } from "../../lib/push-toggle";
@@ -53,8 +54,6 @@ export default function Account() {
   const { profile, update } = useProfile();
   const { unreadCount } = useNotifications();
   const { places, routeIds } = useSaved();
-  const { data: stops } = useStops();
-  const { data: routes } = useRoutes();
   if (!ready) return null;
   const fareType = profile?.fare_type ?? "regular";
   const name = profile?.display_name || "Your account";
@@ -78,20 +77,9 @@ export default function Account() {
           <View className="border-b border-border-subtle py-3">
             <SegmentedControl options={fareOptions} value={fareType} onChange={(v) => update({ fare_type: v })} />
           </View>
-          <SettingsRow title="Saved places" icon={MapPinIcon} trailing="none" />
-          {places.length === 0 && <Text className="py-2 pl-9 font-sans text-body-sm text-text-muted">None saved yet</Text>}
-          {places.map((p) => (
-            <Text key={p.id} className="py-2 pl-9 font-sans text-body-md text-text-secondary">
-              {p.label || stops?.find((s) => s.id === p.stop_id)?.name || "Saved place"}
-            </Text>
-          ))}
-          <SettingsRow title="Saved routes" icon={BookmarkIcon} trailing="none" />
-          {routeIds.length === 0 && <Text className="py-2 pl-9 font-sans text-body-sm text-text-muted">None saved yet</Text>}
-          {routeIds.map((id) => (
-            <Pressable key={id} role="button" onPress={() => nav.push(`/route/${id}`)} className="py-2 pl-9">
-              <Text className="font-sans text-body-md text-text-secondary">{routes?.find((r) => r.id === id)?.name ?? "Route"}</Text>
-            </Pressable>
-          ))}
+          <SettingsRow title="Your trips" icon={ReceiptIcon} onPress={() => nav.push("/account/trips")} />
+          <SettingsRow title="Saved places" icon={MapPinIcon} trailing="value" value={places.length ? String(places.length) : ""} onPress={() => nav.push("/account/places")} />
+          <SettingsRow title="Saved routes" icon={BookmarkIcon} trailing="value" value={routeIds.length ? String(routeIds.length) : ""} onPress={() => nav.push("/account/routes")} />
         </View>
 
         <View>

@@ -1,25 +1,25 @@
 import { expect as baseExpect, test, type Browser, type TestInfo } from "@playwright/test";
 import { signIn } from "./support/auth";
 
-// One seeded vehicle per project, never NBC 4821. Numbers: 10/13 commuters, 14/15 drivers.
+// One seeded vehicle per project, never TMB 2417. Numbers: 10/13 commuters, 14/15 drivers.
 const setups = {
   iphone: {
     commuter: "+639000000010",
     driver: "+639000000014",
-    plate: "NAK 2290",
-    label: "E-jeep 07",
-    // Commuter stands at Juan Luna St. The vehicle starts at the beginning of Downtown-SM, 1 km before it.
-    at: { latitude: 15.486681, longitude: 120.59621 },
-    ping: { lat: 15.489709, lng: 120.592027 },
+    plate: "TGR 4682",
+    label: "Gerona 05",
+    // Commuter stands at Salapungan Barangay Hall. The vehicle starts at the beginning of Tarlac-Gerona, 1.6 km before it.
+    at: { latitude: 15.50748, longitude: 120.59619 },
+    ping: { lat: 15.496054, lng: 120.593772 },
   },
   pixel: {
     commuter: "+639000000013",
     driver: "+639000000015",
-    plate: "NCD 5127",
-    label: "E-jeep 12",
-    // Burgos St is on Capitol-SM only. The vehicle starts at Capitol.
-    at: { latitude: 15.487662, longitude: 120.587637 },
-    ping: { lat: 15.48015, lng: 120.587754 },
+    plate: "TLP 2859",
+    label: "La Paz 04",
+    // Metro Town Mall is on Tarlac-La Paz and Tarlac-Cabanatuan only. The vehicle starts at the beginning of Tarlac-La Paz, 1.3 km before it.
+    at: { latitude: 15.48779, longitude: 120.59701 },
+    ping: { lat: 15.496054, lng: 120.593772 },
   },
 } as const;
 
@@ -39,7 +39,7 @@ test.beforeAll(async ({}, info) => {
   cfg = setups[info.project.name as keyof typeof setups];
   driver = await signIn(cfg.driver);
   commuter = await signIn(cfg.commuter);
-  const verified = await driver.client.rpc("verify_driver", { p_operator_code: "TPC-0412", p_plate: cfg.plate });
+  const verified = await driver.client.rpc("verify_driver", { p_operator_code: "TMP-5826", p_plate: cfg.plate });
   if (verified.error) throw verified.error;
   const shift = await driver.client.rpc("start_shift");
   if (shift.error) throw shift.error;
@@ -80,7 +80,7 @@ test("home lists the vehicle, tracking and the on board flow work", async ({ bro
   await row.click();
   await expect(page).toHaveURL(/\/vehicle\//);
   await expect(page.getByText(/\d+ min/).first()).toBeVisible();
-  await page.getByRole("button", { name: /^Track this e-jeep/ }).click();
+  await page.getByRole("button", { name: /^Track this modern jeep/ }).click();
 
   await expect(page).toHaveURL(/\/trip\/[^/]+$/);
   await expect(page.getByText(/^Arriving at .* in$/)).toBeVisible();
@@ -92,7 +92,7 @@ test("home lists the vehicle, tracking and the on board flow work", async ({ bro
   await expect(page.getByRole("switch", { name: /Para alert/ })).toBeVisible();
 
   await page.getByRole("button", { name: "End trip" }).click();
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page).toHaveURL(/\/trip\/[^/]+\/done$/);
   await context.close();
 });
 
@@ -127,6 +127,6 @@ test("the driver ending the shift shows stopped sharing", async ({ browser, base
   clearInterval(pinger);
   await driver.client.rpc("end_shift");
   await expect(page.getByText(/stopped sharing/)).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByRole("button", { name: /Find another e-jeep/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Find another modern jeep/ })).toBeVisible();
   await context.close();
 });

@@ -30,3 +30,8 @@ export async function enablePush(accessToken: string): Promise<PushResult> {
   });
   return res.ok ? "on" : "unsupported";
 }
+
+/** True while the OS has not been asked yet. */
+export async function pushUndecided(): Promise<boolean> {
+  return (await Notifications.getPermissionsAsync()).status === "undetermined";
+}

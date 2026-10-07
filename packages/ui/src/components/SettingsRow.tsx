@@ -31,11 +31,11 @@ export function SettingsRow({
   onPress,
   className,
 }: SettingsRowProps) {
+  // A plain View when there is no tap action: a disabled Pressable would mark a trailing switch disabled too.
+  const Row = onPress ? Pressable : View;
   return (
-    <Pressable
-      role={onPress ? "button" : undefined}
-      onPress={onPress}
-      disabled={!onPress}
+    <Row
+      {...(onPress ? { role: "button" as const, onPress } : {})}
       className={cn("min-h-control-md w-full flex-row items-center gap-3 border-b border-border-subtle py-[14px]", className)}
     >
       {I && <I size={24} color={colors["text-secondary"]} />}
@@ -46,6 +46,6 @@ export function SettingsRow({
       {trailing === "value" && <Text className="font-sans text-body-sm text-text-secondary">{value}</Text>}
       {(trailing === "chevron" || trailing === "value") && <CaretRightIcon size={20} color={colors["text-muted"]} />}
       {trailing === "switch" && <Switch value={checked} onValueChange={onCheckedChange} label={title} />}
-    </Pressable>
+    </Row>
   );
 }

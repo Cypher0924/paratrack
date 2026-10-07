@@ -5,9 +5,9 @@ import { useOnline } from "../lib/online";
 import { checkCode, fetchProfile, sendCode, updateProfile } from "./auth";
 import { useCached } from "./cache";
 import { computeFare, computeNearby } from "./compute";
-import { fetchNotifications, markAllRead as markAllReadQuery, unreadCount } from "./notifications";
+import { fetchNotifications, markAllRead as markAllReadQuery, markRead as markReadQuery, unreadCount } from "./notifications";
 import { fetchLiveVehicles, fetchRouteStops, fetchRoutes, fetchStops, mergeLive } from "./queries";
-import { endTrip as endTripQuery, fetchActiveTrips, setOnboard as setOnboardQuery, setTripAlerts as setTripAlertsQuery, startTrip as startTripQuery } from "./trips";
+import { endTrip as endTripQuery, fetchActiveTrips, fetchTrip, fetchTripHistory, saveFeedback, setOnboard as setOnboardQuery, setTripAlerts as setTripAlertsQuery, startTrip as startTripQuery } from "./trips";
 import type { AppNotification, FareType, LiveVehicle, Profile, ProfilePatch, Trip, VehicleLive } from "./types";
 
 export const useSession = () => {
@@ -135,8 +135,9 @@ export const useTrips = () => {
       .then(setTrips, () => {})
       .finally(() => setLoaded(true));
   }, [userId]);
+  // Ended trips stay in the list so a screen can tell "ended" from "not found" and go to the recap.
   const replace = (t: Trip) =>
-    setTrips((ts) => (t.status === "ended" ? ts.filter((x) => x.id !== t.id) : ts.some((x) => x.id === t.id) ? ts.map((x) => (x.id === t.id ? t : x)) : [t, ...ts]));
+    setTrips((ts) => (ts.some((x) => x.id === t.id) ? ts.map((x) => (x.id === t.id ? t : x)) : [t, ...ts]));
   return {
     trips,
     loaded,
@@ -147,6 +148,11 @@ export const useTrips = () => {
     },
     setOnboard: async (tripId: string) => replace(await setOnboardQuery(supabase, tripId)),
     endTrip: async (tripId: string) => replace(await endTripQuery(supabase, tripId)),
+    /** Re-reads one trip, to notice the server ending it. */
+    refresh: async (tripId: string) => {
+      const t = await fetchTrip(supabase, tripId);
+      if (t) replace(t);
+    },
     setTripAlerts: async (tripId: string, alerts: { arrivalAlert?: boolean; paraAlert?: boolean }) =>
       replace(await setTripAlertsQuery(supabase, tripId, alerts)),
   };
@@ -177,7 +183,12 @@ export const useNotifications = () => {
     const now = new Date().toISOString();
     setItems((n) => n.map((x) => (x.read_at ? x : { ...x, read_at: now })));
   }, []);
-  return { notifications: items, unreadCount: unreadCount(items), markAllRead };
+  const markRead = useCallback(async (id: number) => {
+    await markReadQuery(supabase, id);
+    const now = new Date().toISOString();
+    setItems((n) => n.map((x) => (x.id === id && !x.read_at ? { ...x, read_at: now } : x)));
+  }, []);
+  return { notifications: items, unreadCount: unreadCount(items), markAllRead, markRead };
 };
 
 export const useFare = (routeId: string, fromStopId: string, toStopId: string, fareType: FareType) => {
@@ -187,4 +198,47 @@ export const useFare = (routeId: string, fromStopId: string, toStopId: string, f
     () => (routes && routeStops ? computeFare(routes.find((r) => r.id === routeId), routeStops, fromStopId, toStopId, fareType) : null),
     [routes, routeStops, routeId, fromStopId, toStopId, fareType],
   );
+};
+
+/** One trip by id, any status. For the recap screen. */
+export const useTrip = (tripId: string | undefined) => {
+  const { user } = useSession();
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId || !tripId) return;
+    let active = true;
+    fetchTrip(supabase, tripId)
+      .then((t) => active && setTrip(t), () => {})
+      .finally(() => active && setLoaded(true));
+    return () => {
+      active = false;
+    };
+  }, [userId, tripId]);
+  return {
+    trip,
+    loaded,
+    sendFeedback: async (feedback: string[]) => {
+      if (trip) setTrip(await saveFeedback(supabase, trip.id, feedback));
+    },
+  };
+};
+
+export const useTripHistory = () => {
+  const { user } = useSession();
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId) return;
+    let active = true;
+    fetchTripHistory(supabase)
+      .then((t) => active && setTrips(t), () => {})
+      .finally(() => active && setLoaded(true));
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+  return { trips, loaded };
 };

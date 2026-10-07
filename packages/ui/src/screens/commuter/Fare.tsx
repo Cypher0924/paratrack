@@ -21,7 +21,7 @@ const options = [
 ] as const;
 
 const discountName = { student: "Student", senior: "Senior", pwd: "PWD", regular: "" } as const;
-const fleet = { ejeep: "modern e-jeeps", jeep: "jeepneys", bus: "buses", shuttle: "shuttles" } as const;
+const fleet = { ejeep: "modern e-jeeps", modern: "modern jeepneys", jeep: "jeepneys", bus: "buses", shuttle: "shuttles" } as const;
 
 /** Figma 10 Fare breakdown. The fare type is saved to the profile. */
 export default function Fare() {

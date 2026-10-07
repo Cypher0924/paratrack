@@ -5,9 +5,9 @@ import type { Database } from "@repo/core";
 import { signIn } from "./support/auth";
 
 // +639000000008 (iphone) and +639000000009 (pixel) are reserved for these tests.
-const ROUTE = "b0000000-0000-4000-8000-000000000001"; // Downtown-SM
-const RIZAL = "c0000000-0000-4000-8000-000000000002";
-const SM = "c0000000-0000-4000-8000-000000000004";
+const ROUTE = "b1000000-0000-4000-8000-000000000001"; // Tarlac-Bamban via Capas
+const ROBINSONS = "c1000000-0000-4000-8000-000000000002";
+const CAPAS = "c1000000-0000-4000-8000-000000000004";
 const ORIGIN_KEY = "paratrack.originStopId";
 
 test.describe.configure({ mode: "serial", timeout: 60_000 });
@@ -33,28 +33,28 @@ test.afterAll(async () => {
   await context?.close();
 });
 
-test("search to SM City lists routes from the picked stop", async () => {
+test("search to Capas lists routes from the picked stop", async () => {
   const page = await context.newPage();
-  await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [ORIGIN_KEY, RIZAL]);
+  await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [ORIGIN_KEY, ROBINSONS]);
   await page.goto("/search");
-  await expect(page.getByRole("button", { name: /From, Rizal Ave/ })).toBeVisible();
-  await page.getByRole("textbox", { name: "To" }).fill("SM City");
-  await page.getByRole("button", { name: "SM City" }).click();
-  await expect(page.getByRole("heading", { name: "Routes to SM City" })).toBeVisible();
-  await expect(page.getByText("Downtown-SM")).toBeVisible();
+  await expect(page.getByRole("button", { name: /From, Robinsons Supermarket/ })).toBeVisible();
+  await page.getByRole("textbox", { name: "To" }).fill("Capas");
+  await page.getByRole("button", { name: "Capas", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Routes to Capas" })).toBeVisible();
+  await expect(page.getByText("Tarlac-Bamban via Capas")).toBeVisible();
   await expect(page.getByText("Wait times count only vehicles with seats left.")).toBeVisible();
   await page.close();
 });
 
 test("student fare total matches the core fare()", async () => {
   const { data: route } = await admin.from("routes").select("length_m,base_fare,base_km,per_km").eq("id", ROUTE).single();
-  const { data: rs } = await admin.from("route_stops").select("stop_id,offset_m").eq("route_id", ROUTE).in("stop_id", [RIZAL, SM]);
+  const { data: rs } = await admin.from("route_stops").select("stop_id,offset_m").eq("route_id", ROUTE).in("stop_id", [ROBINSONS, CAPAS]);
   const off = (id: string) => rs!.find((r) => r.stop_id === id)!.offset_m;
-  const km = legDistanceKm(off(RIZAL), off(SM), route!.length_m);
+  const km = legDistanceKm(off(ROBINSONS), off(CAPAS), route!.length_m);
   const expected = fare({ baseFare: route!.base_fare!, baseKm: route!.base_km!, perKm: route!.per_km! }, km, "student");
 
   const page = await context.newPage();
-  await page.goto(`/fare?route=${ROUTE}&from=${RIZAL}&to=${SM}`);
+  await page.goto(`/fare?route=${ROUTE}&from=${ROBINSONS}&to=${CAPAS}`);
   await page.getByRole("tab", { name: "Student" }).click();
   await expect(page.getByText("Student fare", { exact: true })).toBeVisible();
   await expect(page.getByText(formatPeso(expected.totalCentavos), { exact: true }).last()).toBeVisible();
@@ -67,6 +67,8 @@ test("mark all as read clears unread", async () => {
     { user_id: userId, kind: "arrival" as const, title: "Shuttle 04 is 2 min away", body: "Campus Loop" },
     { user_id: userId, kind: "service" as const, title: "Bus 2 is running late", body: "Tarlac-Clark" },
   ];
+  // Earlier runs and announcements leave other rows behind; start from an empty inbox.
+  await admin.from("notifications").delete().eq("user_id", userId);
   const { data, error } = await admin.from("notifications").insert(rows).select("id");
   expect(error).toBeNull();
   seeded = data!.map((r) => r.id);
@@ -98,10 +100,10 @@ test("the stop picker sets the origin", async () => {
   const page = await context.newPage();
   await page.goto("/search");
   await page.getByRole("button", { name: /^From,/ }).click();
-  await page.getByRole("textbox", { name: "Search stops" }).fill("Capitol");
-  await page.getByRole("button", { name: "Capitol", exact: true }).click();
+  await page.getByRole("textbox", { name: "Search stops" }).fill("Robinsons");
+  await page.getByRole("button", { name: "Robinsons Supermarket", exact: true }).click();
   await expect(page).toHaveURL(/\/search$/);
-  await expect(page.getByRole("button", { name: /From, Capitol/ })).toBeVisible();
-  expect(await page.evaluate((k) => localStorage.getItem(k), ORIGIN_KEY)).toBe("c0000000-0000-4000-8000-000000000007");
+  await expect(page.getByRole("button", { name: /From, Robinsons Supermarket/ })).toBeVisible();
+  expect(await page.evaluate((k) => localStorage.getItem(k), ORIGIN_KEY)).toBe(ROBINSONS);
   await page.close();
 });

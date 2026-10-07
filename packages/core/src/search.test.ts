@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupByDay, routesServing, timeAgo } from "./search";
+import { alternativeRoutes, groupByDay, postedLabel, routesServing, timeAgo } from "./search";
 
 const rs = [
   { routeId: "a", seq: 1, stopId: "x" },
@@ -39,5 +39,37 @@ describe("timeAgo", () => {
     expect(timeAgo(new Date(now.getTime() - 8 * 60_000), now)).toBe("8 min ago");
     expect(timeAgo(new Date("2026-10-05T07:00:00+08:00"), now)).toBe("3 hr ago");
     expect(timeAgo(new Date("2026-10-04T20:00:00+08:00"), now)).toBe("Yesterday");
+  });
+});
+
+describe("alternativeRoutes", () => {
+  it("lists other routes sharing a stop", () => {
+    expect(alternativeRoutes(rs, "a")).toEqual([
+      { routeId: "b", sharedStopIds: ["y", "x"] },
+      { routeId: "c", sharedStopIds: ["x"] },
+    ]);
+    expect(alternativeRoutes(rs, "zzz")).toEqual([]);
+  });
+
+  it("puts routes sharing more stops first, so a shared terminal alone ranks last", () => {
+    const hub = [
+      { routeId: "paused", seq: 1, stopId: "terminal" },
+      { routeId: "paused", seq: 2, stopId: "m" },
+      { routeId: "paused", seq: 3, stopId: "n" },
+      { routeId: "other", seq: 1, stopId: "terminal" },
+      { routeId: "same-way", seq: 1, stopId: "terminal" },
+      { routeId: "same-way", seq: 2, stopId: "m" },
+      { routeId: "same-way", seq: 3, stopId: "n" },
+    ];
+    expect(alternativeRoutes(hub, "paused").map((r) => r.routeId)).toEqual(["same-way", "other"]);
+  });
+});
+
+describe("postedLabel", () => {
+  const now = new Date("2026-10-05T10:00:00+08:00");
+  it("names the day", () => {
+    expect(postedLabel(new Date("2026-10-05T07:05:00+08:00"), now)).toBe("today at 7:05 AM");
+    expect(postedLabel(new Date("2026-10-04T11:40:00+08:00"), now)).toBe("yesterday at 11:40 AM");
+    expect(postedLabel(new Date("2026-10-01T11:40:00+08:00"), now)).toBe("Oct 1 at 11:40 AM");
   });
 });

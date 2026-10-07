@@ -7,7 +7,7 @@ describe("repo config", () => {
   it("keeps test OTP codes out of git", () => {
     const block = read("supabase/config.toml").split("[auth.sms.test_otp]")[1]!.split("\n[")[0]!;
     const values = [...block.matchAll(/^\s*\d+\s*=\s*"([^"]*)"/gm)].map((m) => m[1]);
-    expect(values).toHaveLength(20);
+    expect(values).toHaveLength(26);
     for (const v of values) expect(v).toBe("env(SUPABASE_AUTH_TEST_OTP)");
   });
 
