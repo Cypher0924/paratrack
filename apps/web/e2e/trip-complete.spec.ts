@@ -3,7 +3,7 @@ import { devices, expect as baseExpect, test, type BrowserContext } from "@playw
 import type { Database } from "@repo/core";
 import { signIn } from "./support/auth";
 
-// +639000000005 (iphone) and +639000000018 (pixel) are reserved for these tests.
+// +639000000023 (iphone) and +639000000024 (pixel) are reserved for these tests.
 const ROUTE = "b1000000-0000-4000-8000-000000000001"; // Tarlac-Bamban via Capas
 const BOARD = "c1000000-0000-4000-8000-000000000002"; // Robinsons Supermarket
 const ALIGHT = "c1000000-0000-4000-8000-000000000003"; // San Rafael Barangay Hall
@@ -20,7 +20,7 @@ const admin = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, proc
 });
 
 test.beforeAll(async ({ browser }, info) => {
-  const phone = info.project.name === "iphone" ? "+639000000005" : "+639000000018";
+  const phone = info.project.name === "iphone" ? "+639000000023" : "+639000000024";
   const { user, storageState } = await signIn(phone);
   userId = user.id;
   await admin.from("trips").delete().eq("user_id", userId);

@@ -22,7 +22,7 @@ export function PushPrimer() {
           Get alerts before your ride comes
         </Text>
         <Text className="font-sans text-body-md text-text-secondary">
-          We tell you when your e-jeep is 2 min away and when a route changes. Turn alerts off anytime in Account.
+          We tell you when your ride is 2 min away and when a route changes. Turn alerts off anytime in Account.
         </Text>
         <View className="gap-3 pb-4">
           <Button label="Turn on alerts" onPress={() => acceptPrimer(token)} />

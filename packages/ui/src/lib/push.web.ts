@@ -38,6 +38,6 @@ export async function enablePush(accessToken: string): Promise<PushResult> {
 }
 
 /** True while the browser has not been asked yet. Denied, granted and unsupported all skip the primer. */
-export async function pushUndecided(): Promise<boolean> {
+export function pushUndecided(): boolean {
   return typeof window !== "undefined" && "Notification" in window && Notification.permission === "default";
 }
