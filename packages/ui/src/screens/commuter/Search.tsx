@@ -8,6 +8,7 @@ import { ArrivalRow } from "../../components/ArrivalRow";
 import { IconButton } from "../../components/IconButton";
 import { SettingsRow } from "../../components/SettingsRow";
 import { useAllRouteStops, useLiveVehicles, useProfile, useRoutes, useStops } from "../../data/hooks";
+import { useSaved } from "../../data/saved";
 import { useOriginStop } from "../../data/origin";
 import { computeSearch } from "../../data/search";
 import { useLocation } from "../../lib/location";
@@ -26,6 +27,7 @@ export default function Search() {
   const { profile } = useProfile();
   const originId = useOriginStop();
   const { position } = useLocation(!originId);
+  const { places, routeIds } = useSaved();
   const [q, setQ] = useState("");
   const [toId, setToId] = useState<string | null>(null);
 
@@ -42,8 +44,10 @@ export default function Search() {
   const results = useMemo(() => {
     const from = origin ? { stopId: origin.id } : position ? { position } : null;
     if (!from || !toId || !routes || !routeStops) return null;
-    return computeSearch(from, toId, routes, routeStops, vehicles, profile?.fare_type ?? "regular", new Date());
-  }, [origin, position, toId, routes, routeStops, vehicles, profile?.fare_type]);
+    const found = computeSearch(from, toId, routes, routeStops, vehicles, profile?.fare_type ?? "regular", new Date());
+    // Saved routes first. Sort is stable, so the existing order holds within each group.
+    return [...found].sort((a, b) => Number(routeIds.includes(b.route.id)) - Number(routeIds.includes(a.route.id)));
+  }, [origin, position, toId, routes, routeStops, vehicles, profile?.fare_type, routeIds]);
 
   return (
     <CommuterPage routeIds={results?.length ? results.map((r) => r.route.id) : undefined}>
@@ -90,6 +94,18 @@ export default function Search() {
       </View>
 
       <View className="px-4 pt-4 md:px-0">
+        {!to &&
+          q.trim() === "" &&
+          places.map((p) => (
+            <SettingsRow
+              key={p.id}
+              title={p.label || "Saved place"}
+              description={(stops ?? []).find((s) => s.id === p.stop_id)?.name ?? undefined}
+              icon={MapPinIcon}
+              trailing="none"
+              onPress={() => p.stop_id && setToId(p.stop_id)}
+            />
+          ))}
         {matches.map((s) => (
           <SettingsRow
             key={s.id}
