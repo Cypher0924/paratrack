@@ -44,7 +44,7 @@ export function usePushOnTap() {
     const decide = (undecided: boolean) =>
       undecided && !(snoozedUntil > Date.now()) ? show(token) : void enablePush(token).catch(() => undefined);
     // Web answers synchronously, keeping the prompt inside the tap. Native has no such rule.
-    const u: boolean | Promise<boolean> = pushUndecided();
+    const u = pushUndecided() as boolean | Promise<boolean>;
     if (typeof u === "boolean") decide(u);
     else void u.then(decide, () => decide(false));
   };

@@ -92,7 +92,7 @@ test("home lists the vehicle, tracking and the on board flow work", async ({ bro
   await expect(page.getByRole("switch", { name: /Para alert/ })).toBeVisible();
 
   await page.getByRole("button", { name: "End trip" }).click();
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page).toHaveURL(/\/trip\/[^/]+\/done$/);
   await context.close();
 });
 

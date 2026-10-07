@@ -38,7 +38,7 @@ export const alternativeRoutes = (
   const mine = new Set(routeStops.filter((r) => r.routeId === routeId).map((r) => r.stopId));
   const out = new Map<string, string[]>();
   for (const r of routeStops) if (r.routeId !== routeId && mine.has(r.stopId)) out.set(r.routeId, [...(out.get(r.routeId) ?? []), r.stopId]);
-  return [...out].map(([id, sharedStopIds]) => ({ routeId: id, sharedStopIds }));
+  return Array.from(out, ([id, sharedStopIds]) => ({ routeId: id, sharedStopIds }));
 };
 
 /** "today at 11:40 AM", "yesterday at 11:40 AM" or "Oct 3 at 11:40 AM". Manila time. */

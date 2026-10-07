@@ -67,6 +67,8 @@ test("mark all as read clears unread", async () => {
     { user_id: userId, kind: "arrival" as const, title: "Shuttle 04 is 2 min away", body: "Campus Loop" },
     { user_id: userId, kind: "service" as const, title: "Bus 2 is running late", body: "Tarlac-Clark" },
   ];
+  // Earlier runs and announcements leave other rows behind; start from an empty inbox.
+  await admin.from("notifications").delete().eq("user_id", userId);
   const { data, error } = await admin.from("notifications").insert(rows).select("id");
   expect(error).toBeNull();
   seeded = data!.map((r) => r.id);
