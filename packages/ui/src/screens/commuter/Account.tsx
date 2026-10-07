@@ -2,6 +2,7 @@ import { BellIcon } from "phosphor-react-native/src/icons/Bell";
 import { BookmarkIcon } from "phosphor-react-native/src/icons/Bookmark";
 import { GraduationCapIcon } from "phosphor-react-native/src/icons/GraduationCap";
 import { MapPinIcon } from "phosphor-react-native/src/icons/MapPin";
+import { ReceiptIcon } from "phosphor-react-native/src/icons/Receipt";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { SteeringWheelIcon } from "phosphor-react-native/src/icons/SteeringWheel";
 import { WarningIcon } from "phosphor-react-native/src/icons/Warning";
@@ -78,6 +79,7 @@ export default function Account() {
           <View className="border-b border-border-subtle py-3">
             <SegmentedControl options={fareOptions} value={fareType} onChange={(v) => update({ fare_type: v })} />
           </View>
+          <SettingsRow title="Your trips" icon={ReceiptIcon} onPress={() => nav.push("/account/trips")} />
           <SettingsRow title="Saved places" icon={MapPinIcon} trailing="none" />
           {places.length === 0 && <Text className="py-2 pl-9 font-sans text-body-sm text-text-muted">None saved yet</Text>}
           {places.map((p) => (

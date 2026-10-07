@@ -34,6 +34,8 @@ export default function Trip() {
   useEffect(() => {
     if (!loaded) return;
     if (!trip) nav.replace("/home");
+    // A trip that was never boarded has no recap.
+    else if (trip.status === "ended") nav.replace(trip.boarded_at ? `/trip/${trip.id}/done` : "/home");
     else if (trip.status === "onboard") nav.replace(`/trip/${trip.id}/onboard`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, trip?.id, trip?.status]);
